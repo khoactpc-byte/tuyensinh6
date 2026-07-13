@@ -612,6 +612,25 @@ body {
     cursor: wait;
 }
 
+/* Error message */
+.error-message {
+    color: #ef4444;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Global Hidden Class */
+.hidden {
+    display: none !important;
+}
+
+/* Loading overlay */
+.loading {
+    opacity: 0.7;
+    cursor: wait;
+}
+
 /* Admin Config Section */
 .admin-config-section {
     background: var(--surface);
