@@ -29,11 +29,13 @@
 
     <main class="container">
         <header class="header">
-            <div class="header-actions">
+            <div class="header-actions-left">
                 <!-- Nút Thống Kê (Chỉ hiện khi là Admin) -->
                 <button id="statsBtn" class="sheet-btn hidden" style="background: var(--primary); border-color: var(--primary);" onclick="showStats()">
                     <i class="fa-solid fa-chart-pie"></i> Thống kê
                 </button>
+            </div>
+            <div class="header-actions">
                 <!-- Nút liên kết Google Sheet (Chỉ hiện khi là Admin) -->
                 <a href="https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/edit" target="_blank" id="openSheetBtn" class="sheet-btn hidden">
                     <i class="fa-solid fa-table-cells"></i> Sheet

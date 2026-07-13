@@ -75,9 +75,9 @@ function loadConfig() {
                 let isEnabled = configRow[0] === 'TRUE' || configRow[0] === 'true' || configRow[0] === true;
                 let text = configRow[1] || '';
                 
-                // Nếu vừa lưu (trong vòng 5 phút) thì dùng localStorage để đè lên cache cũ của Google
+                // Tăng thời gian lưu localStorage lên 24h để Admin không bao giờ bị dội cache cũ của Google
                 const lastSaved = localStorage.getItem('admin_config_time');
-                if (lastSaved && (Date.now() - parseInt(lastSaved) < 5 * 60 * 1000)) {
+                if (lastSaved && (Date.now() - parseInt(lastSaved) < 24 * 60 * 60 * 1000)) {
                     isEnabled = localStorage.getItem('admin_config_enable') === 'true';
                     text = localStorage.getItem('admin_config_text') || '';
                 }
@@ -443,6 +443,30 @@ window.updateStudent = function(stt) {
         btn.disabled = false; 
     });
 };
+
+if (configEnableNotif && configNotifText) {
+    configEnableNotif.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            if (configNotifText.value.trim() !== '') {
+                tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="color: #ffe600; margin-right: 10px; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i> ${configNotifText.value}`;
+                newsTicker.style.display = 'block';
+            }
+        } else {
+            newsTicker.style.display = 'none';
+        }
+    });
+
+    configNotifText.addEventListener('input', (e) => {
+        if (configEnableNotif.checked) {
+            if (e.target.value.trim() !== '') {
+                tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="color: #ffe600; margin-right: 10px; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i> ${e.target.value}`;
+                newsTicker.style.display = 'block';
+            } else {
+                newsTicker.style.display = 'none';
+            }
+        }
+    });
+}
 
 window.showStats = function() {
     if (!isAdmin) return;
