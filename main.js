@@ -96,8 +96,14 @@ function loadConfig() {
 function performSearch() {
     const query = searchInput.value.trim();
     
-    if (query === '' && !isAdmin) {
+    if (query === '') {
         resultsContainer.innerHTML = '';
+        return;
+    }
+
+    // Bảo mật: Yêu cầu phụ huynh nhập ít nhất 4 ký tự
+    if (!isAdmin && query.length < 4) {
+        resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập ít nhất 4 ký tự (chữ hoặc số) để tra cứu.</p>';
         return;
     }
 
