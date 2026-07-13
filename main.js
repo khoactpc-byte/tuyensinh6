@@ -285,7 +285,17 @@ function refreshAndSearch() {
 
 // Event Listeners
 searchBtn.addEventListener('click', refreshAndSearch);
-searchInput.addEventListener('keypress', (e) => {
+// Focus/Click tự động bôi đen toàn bộ text để nhập nhanh hơn
+searchInput.addEventListener('click', function() {
+    this.select();
+});
+searchInput.addEventListener('focus', function() {
+    this.select();
+});
+
+// Real-time search
+let searchTimeout;
+searchInput.addEventListener('input', (e) => {
     if (e.key === 'Enter') refreshAndSearch();
 });
 

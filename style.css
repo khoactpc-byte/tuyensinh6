@@ -415,7 +415,7 @@ body {
 
 @media (max-width: 640px) {
     .header {
-        padding: 15px; /* Bring everything closer to top */
+        padding: 5px 15px 15px 15px; /* Bring everything closer to top */
     }
     
     .header h1 {
@@ -495,32 +495,35 @@ body {
     }
 
     .header-actions-left {
-        top: 15px;
+        top: 5px;
         left: 15px;
     }
 
     .header-actions {
-        top: 15px;
+        top: 5px;
         right: 15px;
     }
 
     .admin-text {
-        display: none; /* Hide text, keep only icon for non-admin */
+        display: inline; /* Show text */
     }
 
     .admin-btn {
-        padding: 10px; /* Square-ish button for icon only */
-        border-radius: 50%; /* Make it round */
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        padding: 6px 12px; /* Normal button padding */
+        border-radius: 20px;
+        width: auto;
+        height: auto;
+        font-size: 0.8rem;
     }
 
     /* Admin mode active on Mobile */
-    body.admin-active .logo-container {
-        display: none; /* Hide logo in admin mode */
+    body.admin-active .logo-container,
+    body.admin-active .header-titles {
+        display: none; /* Hide logo and titles in admin mode */
+    }
+
+    body.admin-active .header {
+        padding-top: 5px; /* Sat viền trên */
     }
 
     body.admin-active .header-top-bar {
@@ -528,7 +531,7 @@ body {
         display: flex;
         justify-content: space-between;
         align-items: stretch; /* Make buttons same height */
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         width: 100%;
         gap: 8px;
     }
