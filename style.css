@@ -520,7 +520,12 @@ body {
     }
 
     .header-top-bar {
-        display: none; /* Hide top bar on mobile, admin btn is floating */
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 0;
+        padding: 0;
     }
 
     .header-actions {
@@ -533,16 +538,14 @@ body {
     }
 
     .admin-btn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 999;
-        padding: 10px 16px;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-        background: rgba(255,255,255,0.9);
-        backdrop-filter: blur(10px);
+        background: none;
+        border: none;
+        padding: 4px 0;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        box-shadow: none;
+        backdrop-filter: none;
+        opacity: 0.6;
     }
 
     /* Admin mode active on Mobile */
@@ -563,9 +566,9 @@ body {
     }
 
     body.admin-active .admin-btn {
-        position: static; /* Reset from fixed FAB back to normal */
-        box-shadow: none;
+        opacity: 1;
         background: rgba(255,255,255,0.5);
+        border: 1px solid var(--surface-border);
     }
 
     body.admin-active .header-actions-left {
