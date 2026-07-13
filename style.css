@@ -415,7 +415,7 @@ body {
 
 @media (max-width: 640px) {
     .header {
-        padding: 5px 15px 15px 15px; /* Bring everything closer to top */
+        padding: 0px 15px 15px 15px; /* Bring everything closer to top */
     }
     
     .header h1 {
@@ -471,7 +471,7 @@ body {
         justify-content: flex-start;
         gap: 12px;
         text-align: left;
-        margin-top: 0;
+        margin-top: 10px;
     }
 
     .logo-container {
@@ -503,7 +503,8 @@ body {
         justify-content: flex-end;
         align-items: center;
         width: 100%;
-        margin-bottom: 10px;
+        margin-bottom: 0;
+        padding: 6px 0;
     }
 
     .header-actions {
