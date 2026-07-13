@@ -125,14 +125,16 @@ function renderResults(results, query) {
                         </div>
                     </div>
                     <div class="stt-badge">
-                        <span class="stt-label">STT</span>
+                        <span class="stt-label">Số Thứ Tự</span>
                         <span class="stt-number">${stt}</span>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="detail-item"><i class="fa-regular fa-calendar"></i> <strong>Ngày sinh:</strong> ${dob}</div>
                     <div class="detail-item"><i class="fa-solid fa-school"></i> <strong>Trường:</strong> ${school}</div>
-                    <div class="detail-item"><i class="fa-solid fa-location-dot"></i> <strong>Địa chỉ:</strong> ${address}</div>
+                    <div class="detail-item"><i class="fa-solid fa-location-dot"></i> <strong>Địa chỉ:</strong> ${soNha ? soNha : 'Không có thông tin'}</div>
+                    <div class="detail-item" style="margin-left: 30px;"><i class="fa-solid fa-map"></i> <strong>Khu phố:</strong> ${khuPho ? khuPho : 'Không có thông tin'}</div>
+                    <div class="detail-item" style="margin-left: 30px;"><i class="fa-solid fa-map-location-dot"></i> <strong>Phường/Xã:</strong> ${phuongXa ? phuongXa : 'Không có thông tin'}</div>
                 </div>
         `;
         
