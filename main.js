@@ -151,11 +151,13 @@ function renderResults(results, query) {
         if (isAdmin) {
             const isEnrolled = (student[9] || '').trim().toLowerCase() === 'x';
             const hasEnglish = (student[10] || '').trim().toLowerCase() === 'x';
-            const note = student[11] || '';
+            const isTransfer = (student[11] || '').trim().toLowerCase() === 'x';
+            const note = student[12] || '';
             cardHTML += `
                 <div class="admin-actions">
                     <label><input type="checkbox" id="check_${stt}" ${isEnrolled ? 'checked' : ''}> Đã nộp hồ sơ nhập học</label>
                     <label><input type="checkbox" id="eng_${stt}" ${hasEnglish ? 'checked' : ''}> Có chứng chỉ Tiếng Anh</label>
+                    <label><input type="checkbox" id="transfer_${stt}" ${isTransfer ? 'checked' : ''}> Chuyển trường</label>
                     <textarea id="note_${stt}" placeholder="Ghi chú...">${note}</textarea>
                     <button onclick="updateStudent('${stt}')" id="btn_${stt}">Lưu dữ liệu</button>
                 </div>
@@ -209,6 +211,7 @@ window.updateStudent = function(stt) {
     if (!SCRIPT_URL) { alert("Thiết lập SCRIPT_URL!"); return; }
     const isEnrolled = document.getElementById(`check_${stt}`).checked;
     const hasEnglish = document.getElementById(`eng_${stt}`).checked;
+    const isTransfer = document.getElementById(`transfer_${stt}`).checked;
     const note = document.getElementById(`note_${stt}`).value;
     const btn = document.getElementById(`btn_${stt}`);
     btn.disabled = true;
@@ -221,6 +224,7 @@ window.updateStudent = function(stt) {
             stt: stt, 
             daNhapHoc: isEnrolled ? 'x' : '', 
             tiengAnh: hasEnglish ? 'x' : '', 
+            chuyenTruong: isTransfer ? 'x' : '',
             ghiChu: note 
         })
     })
@@ -232,7 +236,8 @@ window.updateStudent = function(stt) {
             if (idx !== -1) { 
                 studentsData[idx][9] = isEnrolled ? 'x' : ''; 
                 studentsData[idx][10] = hasEnglish ? 'x' : ''; 
-                studentsData[idx][11] = note; 
+                studentsData[idx][11] = isTransfer ? 'x' : '';
+                studentsData[idx][12] = note; 
             }
         } else { alert('Lỗi: ' + res.message); btn.innerText = 'Lưu dữ liệu'; btn.disabled = false; }
     })

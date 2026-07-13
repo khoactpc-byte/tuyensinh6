@@ -262,29 +262,23 @@ body {
 .stt-badge {
     background: linear-gradient(135deg, #10b981, #059669);
     color: white;
-    min-width: 80px;
-    height: 70px;
-    padding: 0 10px;
-    border-radius: 16px;
+    padding: 8px 16px;
+    border-radius: 30px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
     box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
 }
 
 .stt-label {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .stt-number {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    line-height: 1;
 }
 
 .info-grid {
@@ -534,6 +528,14 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    font-size: 1.05rem;
 }
 
 .admin-actions label {
