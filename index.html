@@ -30,6 +30,10 @@
     <main class="container">
         <header class="header">
             <div class="header-actions">
+                <!-- Nút Thống Kê (Chỉ hiện khi là Admin) -->
+                <button id="statsBtn" class="sheet-btn hidden" style="background: var(--primary); border-color: var(--primary);" onclick="showStats()">
+                    <i class="fa-solid fa-chart-pie"></i> Thống kê
+                </button>
                 <!-- Nút liên kết Google Sheet (Chỉ hiện khi là Admin) -->
                 <a href="https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/edit" target="_blank" id="openSheetBtn" class="sheet-btn hidden">
                     <i class="fa-solid fa-table-cells"></i> Sheet
@@ -89,6 +93,17 @@
             <input type="password" id="adminPassword" placeholder="Nhập mật khẩu..." />
             <p id="adminError" class="error-msg hidden">Mật khẩu không đúng!</p>
             <button id="submitAdminBtn" class="btn-primary">Đăng Nhập</button>
+        </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="statsModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 500px; text-align: left;">
+            <button class="close-btn" onclick="document.getElementById('statsModal').classList.add('hidden')"><i class="fa-solid fa-xmark"></i></button>
+            <h2 style="margin-bottom: 20px; color: var(--primary); border-bottom: 2px solid var(--surface-border); padding-bottom: 10px; text-align: center;"><i class="fa-solid fa-chart-pie"></i> Bảng Thống Kê</h2>
+            <div id="statsContent">
+                <!-- Nôi dung thống kê sẽ được điền bằng JS -->
+            </div>
         </div>
     </div>
 

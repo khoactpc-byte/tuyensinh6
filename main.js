@@ -72,8 +72,15 @@ function loadConfig() {
         complete: function(results) {
             if (results.data && results.data.length > 0) {
                 const configRow = results.data[0];
-                const isEnabled = configRow[0] === 'TRUE' || configRow[0] === 'true' || configRow[0] === true;
-                const text = configRow[1] || '';
+                let isEnabled = configRow[0] === 'TRUE' || configRow[0] === 'true' || configRow[0] === true;
+                let text = configRow[1] || '';
+                
+                // Nếu vừa lưu (trong vòng 5 phút) thì dùng localStorage để đè lên cache cũ của Google
+                const lastSaved = localStorage.getItem('admin_config_time');
+                if (lastSaved && (Date.now() - parseInt(lastSaved) < 5 * 60 * 1000)) {
+                    isEnabled = localStorage.getItem('admin_config_enable') === 'true';
+                    text = localStorage.getItem('admin_config_text') || '';
+                }
                 
                 configEnableNotif.checked = isEnabled;
                 configNotifText.value = text;
@@ -297,6 +304,8 @@ adminLoginBtn.addEventListener('click', () => {
         adminLoginBtn.style.background = '';
         adminLoginBtn.style.color = '';
         openSheetBtn.classList.add('hidden');
+        const statsBtn = document.getElementById('statsBtn');
+        if (statsBtn) statsBtn.classList.add('hidden');
         adminConfigSection.classList.add('hidden');
         performSearch();
     } else {
@@ -317,6 +326,8 @@ function handleLogin() {
         adminLoginBtn.style.background = '#10b981';
         adminLoginBtn.style.color = 'white';
         openSheetBtn.classList.remove('hidden');
+        const statsBtn = document.getElementById('statsBtn');
+        if (statsBtn) statsBtn.classList.remove('hidden');
         adminConfigSection.classList.remove('hidden');
         if (searchInput.value.trim() !== '') performSearch();
     } else {
@@ -347,6 +358,11 @@ if (saveConfigBtn) {
         .then(r => r.json())
         .then(res => {
             if (res.status === 'success') {
+                // Lưu vào localStorage để tránh cache Google dội lại khi F5
+                localStorage.setItem('admin_config_enable', isEnabled);
+                localStorage.setItem('admin_config_text', text);
+                localStorage.setItem('admin_config_time', Date.now());
+
                 saveConfigBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lưu';
                 if (isEnabled && text.trim() !== '') {
                     tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="color: #ffe600; margin-right: 10px; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i> ${text}`;
@@ -426,6 +442,46 @@ window.updateStudent = function(stt) {
         btn.innerText = originalText; 
         btn.disabled = false; 
     });
+};
+
+window.showStats = function() {
+    if (!isAdmin) return;
+    
+    let total = studentsData.length;
+    let nhapHoc = 0;
+    let tiengAnh = 0;
+    let chuyenTruong = 0;
+
+    studentsData.forEach(student => {
+        if ((student[9] || '').trim().toLowerCase() === 'x') nhapHoc++;
+        if ((student[10] || '').trim().toLowerCase() === 'x') tiengAnh++;
+        if ((student[11] || '').trim().toLowerCase() === 'x') chuyenTruong++;
+    });
+
+    const chuaNhapHoc = total - nhapHoc;
+
+    const statsHTML = `
+        <div style="font-size: 1.1rem; line-height: 2;">
+            <p style="padding: 10px; background: #f8fafc; border-radius: 8px; margin-bottom: 8px;">
+                <i class="fa-solid fa-users" style="color: var(--primary); width: 30px;"></i> <strong>Tổng số học sinh:</strong> <span style="float: right; font-weight: bold; font-size: 1.2rem;">${total}</span>
+            </p>
+            <p style="padding: 10px; background: #ecfdf5; border-radius: 8px; margin-bottom: 8px;">
+                <i class="fa-solid fa-check-circle" style="color: var(--success); width: 30px;"></i> <strong>Đã nộp hồ sơ:</strong> <span style="float: right; color: var(--success); font-weight: bold; font-size: 1.2rem;">${nhapHoc}</span>
+            </p>
+            <p style="padding: 10px; background: #fef2f2; border-radius: 8px; margin-bottom: 8px;">
+                <i class="fa-solid fa-clock-rotate-left" style="color: var(--highlight); width: 30px;"></i> <strong>Chưa làm thủ tục:</strong> <span style="float: right; color: var(--highlight); font-weight: bold; font-size: 1.2rem;">${chuaNhapHoc}</span>
+            </p>
+            <p style="padding: 10px; background: #f5f3ff; border-radius: 8px; margin-bottom: 8px;">
+                <i class="fa-solid fa-language" style="color: #8b5cf6; width: 30px;"></i> <strong>Đăng ký Tiếng Anh:</strong> <span style="float: right; color: #8b5cf6; font-weight: bold; font-size: 1.2rem;">${tiengAnh}</span>
+            </p>
+            <p style="padding: 10px; background: #fffbeb; border-radius: 8px; margin-bottom: 8px;">
+                <i class="fa-solid fa-arrow-right-arrow-left" style="color: #f59e0b; width: 30px;"></i> <strong>Xin chuyển trường:</strong> <span style="float: right; color: #f59e0b; font-weight: bold; font-size: 1.2rem;">${chuyenTruong}</span>
+            </p>
+        </div>
+    `;
+
+    document.getElementById('statsContent').innerHTML = statsHTML;
+    document.getElementById('statsModal').classList.remove('hidden');
 };
 
 // Initialize
