@@ -492,7 +492,7 @@ body {
         justify-content: flex-start;
         gap: 12px;
         text-align: left;
-        margin-top: 4px;
+        margin-top: 0px;
     }
 
     .logo-container {
@@ -524,10 +524,8 @@ body {
         justify-content: flex-end;
         align-items: center;
         width: 100%;
-        margin-bottom: 8px;
-        padding: 4px 0;
-        border-bottom: 1px solid rgba(0,0,0,0.06);
-        padding-bottom: 8px;
+        margin-bottom: 2px;
+        padding: 2px 0;
     }
 
     .header-actions {
@@ -540,11 +538,11 @@ body {
     }
 
     .admin-btn {
-        padding: 6px 12px; /* Normal button padding */
-        border-radius: 20px;
+        padding: 4px 10px;
+        border-radius: 12px;
         width: auto;
         height: auto;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
     }
 
     /* Admin mode active on Mobile */
