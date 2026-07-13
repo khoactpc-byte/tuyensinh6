@@ -337,24 +337,43 @@ window.updateStudent = function(stt) {
             stt: stt, 
             daNhapHoc: isEnrolled ? 'x' : '', 
             tiengAnh: hasEnglish ? 'x' : '', 
-            chuyenTruong: isTransfer ? 'x' : '',
+            chuyenTruong: isTransfer ? 'x' : '', 
             ghiChu: note 
         })
     })
     .then(r => r.json())
     .then(res => {
         if (res.status === 'success') {
-            btn.innerText = 'Đã lưu ✓';
-            const idx = studentsData.findIndex(s => s[0] == stt);
-            if (idx !== -1) { 
-                studentsData[idx][9] = isEnrolled ? 'x' : ''; 
-                studentsData[idx][10] = hasEnglish ? 'x' : ''; 
-                studentsData[idx][11] = isTransfer ? 'x' : '';
-                studentsData[idx][12] = note; 
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lưu';
+            
+            // Cập nhật dữ liệu ngay lập tức vào bộ nhớ tạm (không cần F5)
+            const studentIndex = studentsData.findIndex(s => s[0] && s[0].toString() === stt.toString());
+            if (studentIndex !== -1) {
+                // Nếu mảng con chưa đủ dài, cần push thêm phần tử rỗng để tránh lỗi
+                while (studentsData[studentIndex].length < 13) {
+                    studentsData[studentIndex].push('');
+                }
+                studentsData[studentIndex][9] = isEnrolled ? 'x' : '';
+                studentsData[studentIndex][10] = hasEnglish ? 'x' : '';
+                studentsData[studentIndex][11] = isTransfer ? 'x' : '';
+                studentsData[studentIndex][12] = note;
             }
-        } else { alert('Lỗi: ' + res.message); btn.innerText = 'Lưu dữ liệu'; btn.disabled = false; }
+
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }, 2000);
+        } else { 
+            alert('Lỗi: ' + res.message); 
+            btn.innerText = originalText; 
+            btn.disabled = false; 
+        }
     })
-    .catch(e => { alert('Lỗi mạng!'); btn.innerText = 'Lưu dữ liệu'; btn.disabled = false; });
+    .catch(e => { 
+        alert('Lỗi mạng!'); 
+        btn.innerText = originalText; 
+        btn.disabled = false; 
+    });
 };
 
 // Initialize
