@@ -19,6 +19,20 @@ function doPost(e) {
       configSheet.getRange('B1').setValue(data.notificationText);
       return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
     } 
+    else if (data.action === 'getConfig') {
+      var configSheet = ss.getSheetByName('CONFIG');
+      var isEnabled = false;
+      var text = '';
+      if (configSheet) {
+        isEnabled = configSheet.getRange('A1').getValue();
+        text = configSheet.getRange('B1').getValue();
+      }
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        enableNotification: isEnabled,
+        notificationText: text
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
     else if (data.action === 'updateStudent') {
       var dataSheet = ss.getSheetByName('DATA');
       var stt = data.stt;

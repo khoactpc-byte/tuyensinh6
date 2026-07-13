@@ -64,39 +64,32 @@ function loadData() {
 }
 
 function loadConfig() {
-    const antiCacheUrl = `${CONFIG_CSV_URL}&t=${new Date().getTime()}`;
-    Papa.parse(antiCacheUrl, {
-        download: true,
-        header: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-            if (results.data && results.data.length > 0) {
-                const configRow = results.data[0];
-                let isEnabled = configRow[0] === 'TRUE' || configRow[0] === 'true' || configRow[0] === true;
-                let text = configRow[1] || '';
-                
-                // Tăng thời gian lưu localStorage lên 24h để Admin không bao giờ bị dội cache cũ của Google
-                const lastSaved = localStorage.getItem('admin_config_time');
-                if (lastSaved && (Date.now() - parseInt(lastSaved) < 24 * 60 * 60 * 1000)) {
-                    isEnabled = localStorage.getItem('admin_config_enable') === 'true';
-                    text = localStorage.getItem('admin_config_text') || '';
-                }
-                
-                configEnableNotif.checked = isEnabled;
-                configNotifText.value = text;
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ 
+            password: 'nan123',
+            action: 'getConfig'
+        })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'success') {
+            let isEnabled = res.enableNotification === true || res.enableNotification === 'TRUE' || res.enableNotification === 'true';
+            let text = res.notificationText || '';
+            
+            // Cập nhật giao diện
+            if (configEnableNotif) configEnableNotif.checked = isEnabled;
+            if (configNotifText) configNotifText.value = text;
 
-                if (isEnabled && text.trim() !== '') {
-                    tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="color: #ffe600; margin-right: 10px; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i> ${text}`;
-                    newsTicker.style.display = 'block';
-                } else {
-                    newsTicker.style.display = 'none';
-                }
+            if (isEnabled && text.trim() !== '') {
+                tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="color: #ffe600; margin-right: 10px; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i> ${text}`;
+                newsTicker.style.display = 'block';
+            } else {
+                newsTicker.style.display = 'none';
             }
-        },
-        error: function(err) {
-            console.error('Lỗi tải config:', err);
         }
-    });
+    })
+    .catch(err => console.error('Lỗi tải config:', err));
 }
 
 // Search Logic
