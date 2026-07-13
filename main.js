@@ -1,4 +1,4 @@
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/export?format=csv';
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/gviz/tq?tqx=out:csv&sheet=DATA';
 let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCYWMAbkmeiZXyvaCkwTYmlU0yyIaZgQSPwW7jcL8GjZdksIHltafvroHAgyLt-4pLKg/exec';
 
 let studentsData = [];
@@ -69,9 +69,13 @@ function performSearch() {
         const rawName = student[1] || '';
         const rawID = student[2] || '';
         
+        // Remove leading zeros for ID comparison
+        const cleanRawID = removeAccents(rawID).replace(/^0+/, '');
+        const cleanQueryID = normalizedQuery.replace(/^0+/, '');
+
         const sttMatch = isAdmin && rawSTT === normalizedQuery;
         const nameMatch = removeAccents(rawName).includes(normalizedQuery);
-        const idMatch = removeAccents(rawID).includes(normalizedQuery);
+        const idMatch = cleanRawID.includes(cleanQueryID);
         
         return sttMatch || nameMatch || idMatch;
     });
