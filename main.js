@@ -40,8 +40,9 @@ function removeAccents(str) {
 // Fetch and Parse CSV
 function loadData() {
     statusMessage.textContent = 'Đang tải dữ liệu, vui lòng đợi...';
+    const antiCacheUrl = `${CSV_URL}&t=${new Date().getTime()}`;
     
-    Papa.parse(CSV_URL, {
+    Papa.parse(antiCacheUrl, {
         download: true,
         header: false,
         skipEmptyLines: true,
@@ -63,7 +64,8 @@ function loadData() {
 }
 
 function loadConfig() {
-    Papa.parse(CONFIG_CSV_URL, {
+    const antiCacheUrl = `${CONFIG_CSV_URL}&t=${new Date().getTime()}`;
+    Papa.parse(antiCacheUrl, {
         download: true,
         header: false,
         skipEmptyLines: true,
