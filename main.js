@@ -1,4 +1,5 @@
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/gviz/tq?tqx=out:csv&sheet=DATA';
+const CONFIG_CSV_URL = 'https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/gviz/tq?tqx=out:csv&sheet=CONFIG';
 let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCYWMAbkmeiZXyvaCkwTYmlU0yyIaZgQSPwW7jcL8GjZdksIHltafvroHAgyLt-4pLKg/exec';
 
 let studentsData = [];
@@ -17,6 +18,15 @@ const closeModalBtn = document.getElementById('closeModalBtn');
 const adminPassword = document.getElementById('adminPassword');
 const adminError = document.getElementById('adminError');
 const submitAdminBtn = document.getElementById('submitAdminBtn');
+const openSheetBtn = document.getElementById('openSheetBtn');
+
+// Config Elements
+const adminConfigSection = document.getElementById('adminConfigSection');
+const configEnableNotif = document.getElementById('configEnableNotif');
+const configNotifText = document.getElementById('configNotifText');
+const saveConfigBtn = document.getElementById('saveConfigBtn');
+const newsTicker = document.getElementById('newsTicker');
+const tickerText = document.getElementById('tickerText');
 
 // Normalize string for searching (remove accents, to lowercase)
 function removeAccents(str) {
@@ -48,6 +58,34 @@ function loadData() {
             console.error('Lỗi khi tải dữ liệu:', error);
             statusMessage.textContent = 'Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.';
             statusMessage.style.color = 'var(--highlight)';
+        }
+    });
+}
+
+function loadConfig() {
+    Papa.parse(CONFIG_CSV_URL, {
+        download: true,
+        header: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+            if (results.data && results.data.length > 0) {
+                const configRow = results.data[0];
+                const isEnabled = configRow[0] === 'TRUE' || configRow[0] === 'true' || configRow[0] === true;
+                const text = configRow[1] || '';
+                
+                configEnableNotif.checked = isEnabled;
+                configNotifText.value = text;
+
+                if (isEnabled && text.trim() !== '') {
+                    tickerText.textContent = text;
+                    newsTicker.style.display = 'block';
+                } else {
+                    newsTicker.style.display = 'none';
+                }
+            }
+        },
+        error: function(err) {
+            console.error('Lỗi tải config:', err);
         }
     });
 }
@@ -181,6 +219,8 @@ adminLoginBtn.addEventListener('click', () => {
         isAdmin = false;
         adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Admin';
         adminLoginBtn.style.background = '';
+        openSheetBtn.classList.add('hidden');
+        adminConfigSection.classList.add('hidden');
         performSearch();
     } else {
         adminModal.classList.remove('hidden');
@@ -198,6 +238,8 @@ function handleLogin() {
         adminModal.classList.add('hidden');
         adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Thoát Admin';
         adminLoginBtn.style.background = '#10b981';
+        openSheetBtn.classList.remove('hidden');
+        adminConfigSection.classList.remove('hidden');
         if (searchInput.value.trim() !== '') performSearch();
     } else {
         adminError.classList.remove('hidden');
@@ -206,6 +248,50 @@ function handleLogin() {
 
 submitAdminBtn.addEventListener('click', handleLogin);
 adminPassword.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
+
+if (saveConfigBtn) {
+    saveConfigBtn.addEventListener('click', () => {
+        const isEnabled = configEnableNotif.checked;
+        const text = configNotifText.value;
+        const originalText = saveConfigBtn.innerHTML;
+        saveConfigBtn.innerHTML = 'Đang lưu...';
+        saveConfigBtn.disabled = true;
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                password: 'nan123',
+                action: 'updateConfig',
+                enableNotification: isEnabled,
+                notificationText: text
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                saveConfigBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lưu';
+                if (isEnabled && text.trim() !== '') {
+                    tickerText.textContent = text;
+                    newsTicker.style.display = 'block';
+                } else {
+                    newsTicker.style.display = 'none';
+                }
+            } else {
+                alert('Lỗi: ' + res.message);
+                saveConfigBtn.innerHTML = originalText;
+            }
+            setTimeout(() => {
+                saveConfigBtn.innerHTML = originalText;
+                saveConfigBtn.disabled = false;
+            }, 2000);
+        })
+        .catch(e => { 
+            alert('Lỗi mạng!'); 
+            saveConfigBtn.innerHTML = originalText;
+            saveConfigBtn.disabled = false; 
+        });
+    });
+}
 
 window.updateStudent = function(stt) {
     if (!SCRIPT_URL) { alert("Thiết lập SCRIPT_URL!"); return; }
@@ -221,6 +307,7 @@ window.updateStudent = function(stt) {
         method: 'POST',
         body: JSON.stringify({ 
             password: 'nan123', 
+            action: 'updateStudent',
             stt: stt, 
             daNhapHoc: isEnrolled ? 'x' : '', 
             tiengAnh: hasEnglish ? 'x' : '', 
@@ -251,4 +338,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load data
     loadData();
+    loadConfig();
 });

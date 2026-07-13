@@ -15,9 +15,9 @@
 </head>
 <body>
     <!-- Announcement Ticker -->
-    <div class="news-ticker">
-        <div class="ticker-text">
-            ⚠️ Thông báo: Do nhiều phụ huynh mới bấm đồng ý xác nhận nhập học, nên tạm thời chưa có tên kiểm tra. Phụ huynh chịu khó tra cứu ngày hôm sau hoặc sáng ngày 20/07/2026 lên trường làm thủ tục nhập học nhé!!!
+    <div id="newsTicker" class="news-ticker" style="display: none;">
+        <div id="tickerText" class="ticker-text">
+            <!-- Text will be updated via JS -->
         </div>
     </div>
 
@@ -30,12 +30,29 @@
     <main class="container">
         <header class="header">
             <button id="adminLoginBtn" class="admin-btn" title="Đăng nhập dành cho nhà trường"><i class="fa-solid fa-lock"></i> Admin</button>
+            <a href="https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/edit" target="_blank" id="openSheetBtn" class="admin-btn hidden" style="right: 130px; background-color: #10b981; color: white; border-color: #10b981; text-decoration: none;"><i class="fa-solid fa-table"></i> Sheet</a>
             <div class="logo-container">
                 <img src="logo.jpg" alt="Logo THCS Nguyễn An Ninh" class="school-logo">
             </div>
             <h1>Trường THCS Nguyễn An Ninh</h1>
             <p class="subtitle">Tra cứu thông tin và thời gian làm thủ tục nhập học Lớp 6</p>
         </header>
+
+        <!-- Admin Config Section -->
+        <section id="adminConfigSection" class="admin-config-section hidden">
+            <h3><i class="fa-solid fa-bullhorn"></i> Cài đặt Thông báo chạy ngang</h3>
+            <div class="config-form">
+                <div class="toggle-group">
+                    <label class="switch">
+                        <input type="checkbox" id="configEnableNotif">
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="toggle-label">Bật thông báo</span>
+                </div>
+                <textarea id="configNotifText" placeholder="Nhập nội dung thông báo..."></textarea>
+                <button id="saveConfigBtn" class="btn-primary" style="padding: 10px 20px; font-size: 1rem;"><i class="fa-solid fa-floppy-disk"></i> Lưu cài đặt</button>
+            </div>
+        </section>
 
         <section class="search-section">
             <div class="search-box">
