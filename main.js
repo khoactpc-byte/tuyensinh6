@@ -295,6 +295,7 @@ adminLoginBtn.addEventListener('click', () => {
         isAdmin = false;
         adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Admin';
         adminLoginBtn.style.background = '';
+        adminLoginBtn.style.color = '';
         openSheetBtn.classList.add('hidden');
         adminConfigSection.classList.add('hidden');
         performSearch();
@@ -314,6 +315,7 @@ function handleLogin() {
         adminModal.classList.add('hidden');
         adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Thoát Admin';
         adminLoginBtn.style.background = '#10b981';
+        adminLoginBtn.style.color = 'white';
         openSheetBtn.classList.remove('hidden');
         adminConfigSection.classList.remove('hidden');
         if (searchInput.value.trim() !== '') performSearch();
