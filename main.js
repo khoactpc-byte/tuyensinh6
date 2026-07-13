@@ -64,8 +64,7 @@ function performSearch() {
     const normalizedQuery = removeAccents(query);
     
     // Filter data
-    const filteredResults = studentsData.filter(student => {
-        const rawSTT = student[0] ? student[0].toString() : '';
+    let filteredResults = studentsData.filter(student => {
         const rawName = student[1] || '';
         const rawID = student[2] || '';
         
@@ -73,12 +72,23 @@ function performSearch() {
         const cleanRawID = removeAccents(rawID).replace(/^0+/, '');
         const cleanQueryID = normalizedQuery.replace(/^0+/, '');
 
-        const sttMatch = isAdmin && rawSTT === normalizedQuery;
         const nameMatch = removeAccents(rawName).includes(normalizedQuery);
         const idMatch = cleanRawID.includes(cleanQueryID);
         
-        return sttMatch || nameMatch || idMatch;
+        return nameMatch || idMatch;
     });
+
+    // Ưu tiên tra cứu STT chính xác cho Admin
+    if (isAdmin && /^\d+$/.test(normalizedQuery)) {
+        const exactSTT = studentsData.filter(student => {
+            const rawSTT = student[0] ? student[0].toString() : '';
+            return rawSTT === normalizedQuery;
+        });
+        
+        if (exactSTT.length > 0) {
+            filteredResults = exactSTT;
+        }
+    }
 
     renderResults(filteredResults, query);
 }
