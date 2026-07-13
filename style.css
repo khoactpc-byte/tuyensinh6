@@ -278,10 +278,16 @@ body {
     margin-bottom: 16px;
 }
 
+.student-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .student-info h2 {
     font-size: 1.5rem;
     color: var(--text-main);
-    margin-bottom: 4px;
+    margin-bottom: 0;
 }
 
 .student-id {

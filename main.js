@@ -194,7 +194,7 @@ function renderResults(results, query) {
                     <div class="student-info">
                         <h2>${name}</h2>
                         <div class="student-id"><i class="fa-regular fa-id-card"></i> Mã định danh: ${id}</div>
-                        <div class="student-time" style="color: #ef4444; font-weight: bold; margin-top: 5px; font-size: 0.95rem;">
+                        <div class="student-time" style="color: #ef4444; font-weight: bold; font-size: 0.95rem;">
                             <i class="fa-regular fa-clock"></i> Thời gian hẹn: ${time}
                         </div>
                     </div>
