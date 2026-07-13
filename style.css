@@ -495,13 +495,20 @@ body {
     }
 
     .header-actions-left {
-        top: 5px;
-        left: 15px;
+        display: none; /* Hide left actions if not admin */
+    }
+
+    .header-top-bar {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 10px;
     }
 
     .header-actions {
-        top: 5px;
-        right: 15px;
+        position: static; /* Let it sit naturally above the title */
+        width: auto;
     }
 
     .admin-text {
@@ -527,13 +534,13 @@ body {
     }
 
     body.admin-active .header-top-bar {
-        position: relative;
-        display: flex;
         justify-content: space-between;
-        align-items: stretch; /* Make buttons same height */
         margin-bottom: 10px;
-        width: 100%;
         gap: 8px;
+    }
+
+    body.admin-active .header-actions-left {
+        display: flex;
     }
 
     body.admin-active .header-actions-left, 
