@@ -101,10 +101,22 @@ function performSearch() {
         return;
     }
 
-    // Bảo mật: Yêu cầu phụ huynh nhập ít nhất 4 ký tự
-    if (!isAdmin && query.length < 4) {
-        resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập ít nhất 4 ký tự (chữ hoặc số) để tra cứu.</p>';
-        return;
+    // Bảo mật: Yêu cầu độ dài tùy theo loại tìm kiếm (Tên hay Mã định danh)
+    if (!isAdmin) {
+        const justDigits = query.replace(/\s/g, '');
+        if (/^\d+$/.test(justDigits)) {
+            // Nếu nhập toàn số -> Đang tìm ID -> Yêu cầu ít nhất 10 số
+            if (justDigits.length < 10) {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập ít nhất 10 số của Mã định danh để tra cứu.</p>';
+                return;
+            }
+        } else {
+            // Nếu có chữ -> Đang tìm Tên -> Yêu cầu ít nhất 4 ký tự
+            if (query.length < 4) {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập ít nhất 4 ký tự tên để tra cứu.</p>';
+                return;
+            }
+        }
     }
 
     const normalizedQuery = removeAccents(query);
