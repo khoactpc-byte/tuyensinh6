@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tra cứu Tuyển sinh Lớp 6 - THCS Nguyễn An Ninh</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <main class="container">
+        <header class="header">
+            <button id="adminLoginBtn" class="admin-btn" title="Đăng nhập dành cho nhà trường"><i class="fa-solid fa-lock"></i> Admin</button>
+            <div class="logo-container">
+                <img src="logo.jpg" alt="Logo THCS Nguyễn An Ninh" class="school-logo">
+            </div>
+            <h1>Trường THCS Nguyễn An Ninh</h1>
+            <p class="subtitle">Tra cứu thông tin và thời gian làm thủ tục nhập học Lớp 6</p>
+        </header>
+
+        <section class="search-section">
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Nhập Họ Tên hoặc Số định danh cá nhân..." 
+                    autocomplete="off"
+                />
+                <button id="searchBtn" class="btn-primary">
+                    Tra Cứu
+                </button>
+            </div>
+            <p id="statusMessage" class="status-message">Đang tải dữ liệu, vui lòng đợi...</p>
+        </section>
+
+        <section id="resultsContainer" class="results-container">
+            <!-- Results will be injected here via JavaScript -->
+        </section>
+    </main>
+
+    <!-- Admin Login Modal -->
+    <div id="adminModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button id="closeModalBtn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+            <h2><i class="fa-solid fa-user-shield"></i> Chế độ Nhà trường</h2>
+            <p>Vui lòng nhập mật khẩu để quản lý dữ liệu nhập học.</p>
+            <input type="password" id="adminPassword" placeholder="Nhập mật khẩu..." />
+            <p id="adminError" class="error-msg hidden">Mật khẩu không đúng!</p>
+            <button id="submitAdminBtn" class="btn-primary">Đăng Nhập</button>
+        </div>
+    </div>
+
+    <!-- PapaParse Library for CSV Parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="main.js"></script>
+</body>
+</html>
