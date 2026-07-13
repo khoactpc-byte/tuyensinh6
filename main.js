@@ -293,7 +293,8 @@ searchInput.addEventListener('keypress', (e) => {
 adminLoginBtn.addEventListener('click', () => {
     if (isAdmin) {
         isAdmin = false;
-        adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Admin';
+        document.body.classList.remove('admin-active');
+        adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock"></i> <span class="admin-text">Admin</span>';
         adminLoginBtn.style.background = '';
         adminLoginBtn.style.color = '';
         openSheetBtn.classList.add('hidden');
@@ -314,8 +315,9 @@ closeModalBtn.addEventListener('click', () => {
 function handleLogin() {
     if (adminPassword.value === 'nan123') {
         isAdmin = true;
+        document.body.classList.add('admin-active');
         adminModal.classList.add('hidden');
-        adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Thoát Admin';
+        adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> <span class="admin-text">Thoát Admin</span>';
         adminLoginBtn.style.background = '#10b981';
         adminLoginBtn.style.color = 'white';
         openSheetBtn.classList.remove('hidden');

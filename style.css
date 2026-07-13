@@ -416,7 +416,12 @@ body {
 /* Responsive */
 @media (max-width: 640px) {
     .header h1 {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
+        margin-bottom: 5px;
+    }
+    
+    .subtitle {
+        font-size: 0.85rem;
     }
     
     .search-box {
@@ -447,17 +452,74 @@ body {
     .card-header {
         flex-direction: column-reverse;
         align-items: flex-start;
-        gap: 16px;
+        gap: 12px;
     }
     
     .stt-badge {
-        position: absolute;
-        top: 20px;
-        right: 20px;
+        position: static; /* Prevent overlap with name */
+        align-self: flex-start;
+    }
+
+    /* Mobile Header Layout */
+    .header-title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-align: left;
+    }
+
+    .logo-container {
+        margin-bottom: 0;
+    }
+
+    .school-logo {
+        width: 65px;
+        height: 65px;
+    }
+
+    .header-actions-left {
+        top: 15px;
+        left: 15px;
+    }
+
+    .header-actions {
+        top: 15px;
+        right: 15px;
+    }
+
+    .admin-text {
+        display: none; /* Hide text, keep only icon */
+    }
+
+    .admin-btn, .sheet-btn {
+        padding: 8px 12px;
+        gap: 0;
+    }
+
+    /* Admin mode active on Mobile */
+    body.admin-active .logo-container {
+        display: none; /* Hide logo in admin mode */
+    }
+
+    body.admin-active .header-top-bar {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    body.admin-active .header-actions-left, 
+    body.admin-active .header-actions {
+        position: static; /* Make them flow naturally */
+    }
+
+    body.admin-active .header-actions {
+        flex: 1;
+        justify-content: flex-end;
     }
 }
-
-/* Admin Styles */
 .header-actions-left {
     position: absolute;
     top: 20px;

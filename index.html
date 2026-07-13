@@ -29,24 +29,30 @@
 
     <main class="container">
         <header class="header">
-            <div class="header-actions-left">
-                <!-- Nút Thống Kê (Chỉ hiện khi là Admin) -->
-                <button id="statsBtn" class="sheet-btn hidden" style="background: var(--primary); border-color: var(--primary);" onclick="showStats()">
-                    <i class="fa-solid fa-chart-pie"></i> Thống kê
-                </button>
+            <div class="header-top-bar">
+                <div class="header-actions-left">
+                    <!-- Nút Thống Kê (Chỉ hiện khi là Admin) -->
+                    <button id="statsBtn" class="sheet-btn hidden" style="background: var(--primary); border-color: var(--primary);" onclick="showStats()">
+                        <i class="fa-solid fa-chart-pie"></i> <span class="admin-text">Thống kê</span>
+                    </button>
+                </div>
+                <div class="header-actions">
+                    <!-- Nút liên kết Google Sheet (Chỉ hiện khi là Admin) -->
+                    <a href="https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/edit" target="_blank" id="openSheetBtn" class="sheet-btn hidden">
+                        <i class="fa-solid fa-table-cells"></i> <span class="admin-text">Sheet</span>
+                    </a>
+                    <button id="adminLoginBtn" class="admin-btn" title="Đăng nhập dành cho nhà trường"><i class="fa-solid fa-lock"></i> <span class="admin-text">Admin</span></button>
+                </div>
             </div>
-            <div class="header-actions">
-                <!-- Nút liên kết Google Sheet (Chỉ hiện khi là Admin) -->
-                <a href="https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/edit" target="_blank" id="openSheetBtn" class="sheet-btn hidden">
-                    <i class="fa-solid fa-table-cells"></i> Sheet
-                </a>
-                <button id="adminLoginBtn" class="admin-btn" title="Đăng nhập dành cho nhà trường"><i class="fa-solid fa-lock"></i> Admin</button>
+            <div class="header-title-container">
+                <div class="logo-container">
+                    <img src="logo.jpg" alt="Logo THCS Nguyễn An Ninh" class="school-logo">
+                </div>
+                <div class="header-titles">
+                    <h1>Trường THCS Nguyễn An Ninh</h1>
+                    <p class="subtitle">Tra cứu thông tin và thời gian làm thủ tục nhập học Lớp 6</p>
+                </div>
             </div>
-            <div class="logo-container">
-                <img src="logo.jpg" alt="Logo THCS Nguyễn An Ninh" class="school-logo">
-            </div>
-            <h1>Trường THCS Nguyễn An Ninh</h1>
-            <p class="subtitle">Tra cứu thông tin và thời gian làm thủ tục nhập học Lớp 6</p>
         </header>
 
         <!-- Admin Config Section -->
