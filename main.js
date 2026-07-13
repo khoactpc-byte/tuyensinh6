@@ -79,7 +79,7 @@ function loadConfig() {
                 configNotifText.value = text;
 
                 if (isEnabled && text.trim() !== '') {
-                    tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="margin-right: 8px;"></i> ${text}`;
+                    tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="color: #ffe600; margin-right: 10px; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i> ${text}`;
                     newsTicker.style.display = 'block';
                 } else {
                     newsTicker.style.display = 'none';
@@ -128,6 +128,12 @@ function performSearch() {
         if (exactSTT.length > 0) {
             filteredResults = exactSTT;
         }
+    }
+
+    // Bảo mật: Không cho phép hiển thị quá 3 kết quả đối với phụ huynh để tránh rò rỉ dữ liệu
+    if (!isAdmin && filteredResults.length > 3) {
+        resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-shield-halved"></i> Có quá nhiều kết quả (' + filteredResults.length + '). Vui lòng nhập đầy đủ và chính xác Họ Tên hoặc Mã Định Danh để bảo vệ thông tin cá nhân của học sinh.</p>';
+        return;
     }
 
     renderResults(filteredResults, query);
@@ -273,7 +279,7 @@ if (saveConfigBtn) {
             if (res.status === 'success') {
                 saveConfigBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lưu';
                 if (isEnabled && text.trim() !== '') {
-                    tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="margin-right: 8px;"></i> ${text}`;
+                    tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="color: #ffe600; margin-right: 10px; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i> ${text}`;
                     newsTicker.style.display = 'block';
                 } else {
                     newsTicker.style.display = 'none';
