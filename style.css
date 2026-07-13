@@ -302,11 +302,13 @@ body {
     align-items: center;
     gap: 8px;
     box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    white-space: nowrap;
 }
 
 .stt-label {
     font-size: 0.9rem;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .stt-number {
@@ -468,6 +470,28 @@ body {
 
 .admin-btn:hover {
     background: var(--primary);
+    color: white;
+}
+
+.sheet-btn {
+    position: absolute;
+    top: 20px;
+    right: 140px;
+    background: var(--success);
+    border: 1px solid var(--success);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.sheet-btn:hover {
+    background: #059669;
     color: white;
 }
 

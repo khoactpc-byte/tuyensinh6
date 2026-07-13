@@ -79,7 +79,7 @@ function loadConfig() {
                 configNotifText.value = text;
 
                 if (isEnabled && text.trim() !== '') {
-                    tickerText.textContent = text;
+                    tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="margin-right: 8px;"></i> ${text}`;
                     newsTicker.style.display = 'block';
                 } else {
                     newsTicker.style.display = 'none';
@@ -273,7 +273,7 @@ if (saveConfigBtn) {
             if (res.status === 'success') {
                 saveConfigBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lưu';
                 if (isEnabled && text.trim() !== '') {
-                    tickerText.textContent = text;
+                    tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="margin-right: 8px;"></i> ${text}`;
                     newsTicker.style.display = 'block';
                 } else {
                     newsTicker.style.display = 'none';
