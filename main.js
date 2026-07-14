@@ -299,14 +299,17 @@ let _selectedValue = '';
 let _wasSelected = false;
 
 searchInput.addEventListener('click', function() {
-    _selectedValue = this.value;
-    _wasSelected = this.value.length > 0;
-    this.select();
+    var input = this;
+    _selectedValue = input.value;
+    _wasSelected = input.value.length > 0;
+    // setTimeout để select() chạy SAU mouseup, tránh bị trình duyệt hủy bôi đen
+    setTimeout(function() { input.select(); }, 0);
 });
 searchInput.addEventListener('focus', function() {
-    _selectedValue = this.value;
-    _wasSelected = this.value.length > 0;
-    this.select();
+    var input = this;
+    _selectedValue = input.value;
+    _wasSelected = input.value.length > 0;
+    setTimeout(function() { input.select(); }, 0);
 });
 
 // Khi người dùng gõ ký tự, kiểm tra xem IME có nối tiếp không
