@@ -299,7 +299,14 @@ searchInput.addEventListener('focus', function() {
     this.select();
 });
 
-
+// Sửa lỗi bộ gõ Tiếng Việt (Unikey/EVKey): khi bật IME, gõ đè lên vùng bôi đen
+// sẽ bị chèn nối tiếp thay vì thay thế. Sự kiện compositionstart được gọi đúng lúc
+// IME bắt đầu xử lý — ta xóa sạch ô nhập tại thời điểm này.
+searchInput.addEventListener('compositionstart', function() {
+    if (this.selectionStart === 0 && this.selectionEnd === this.value.length && this.value.length > 0) {
+        this.value = '';
+    }
+});
 
 // Real-time search
 let searchTimeout;
