@@ -299,6 +299,20 @@ searchInput.addEventListener('focus', function() {
     this.select();
 });
 
+// Xử lý triệt để lỗi của Unikey/EVKey khi gõ đè lên vùng bôi đen bị viết nối tiếp
+searchInput.addEventListener('keydown', function(e) {
+    // Nếu toàn bộ text đang được bôi đen và người dùng gõ một ký tự thông thường
+    if (this.value.length > 0 && 
+        this.selectionStart === 0 && 
+        this.selectionEnd === this.value.length && 
+        e.key.length === 1 && 
+        !e.ctrlKey && !e.altKey && !e.metaKey) {
+        
+        // Chủ động xóa sạch ô tìm kiếm trước khi ký tự mới được nhập vào
+        this.value = '';
+    }
+});
+
 // Real-time search
 let searchTimeout;
 searchInput.addEventListener('keypress', (e) => {
