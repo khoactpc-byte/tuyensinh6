@@ -291,21 +291,32 @@ function refreshAndSearch() {
 
 // Event Listeners
 searchBtn.addEventListener('click', refreshAndSearch);
-// Focus/Click tự động bôi đen toàn bộ text để nhập nhanh hơn
+// === Xử lý bôi đen + fix lỗi bộ gõ Tiếng Việt (Unikey/EVKey) ===
+// Khi bật IME tiếng Việt, gõ đè lên vùng bôi đen sẽ bị nối tiếp thay vì thay thế.
+// Giải pháp: Lưu giá trị cũ khi click, sau khi ký tự mới được chèn (input event),
+// nếu phát hiện IME nối tiếp → cắt bỏ phần cũ, chỉ giữ ký tự mới.
+let _selectedValue = '';
+let _wasSelected = false;
+
 searchInput.addEventListener('click', function() {
+    _selectedValue = this.value;
+    _wasSelected = this.value.length > 0;
     this.select();
 });
 searchInput.addEventListener('focus', function() {
+    _selectedValue = this.value;
+    _wasSelected = this.value.length > 0;
     this.select();
 });
 
-// Sửa lỗi bộ gõ Tiếng Việt (Unikey/EVKey): khi bật IME, gõ đè lên vùng bôi đen
-// sẽ bị chèn nối tiếp thay vì thay thế. Sự kiện compositionstart được gọi đúng lúc
-// IME bắt đầu xử lý — ta xóa sạch ô nhập tại thời điểm này.
-searchInput.addEventListener('compositionstart', function() {
-    if (this.selectionStart === 0 && this.selectionEnd === this.value.length && this.value.length > 0) {
-        this.value = '';
+// Khi người dùng gõ ký tự, kiểm tra xem IME có nối tiếp không
+searchInput.addEventListener('input', function() {
+    if (_wasSelected && _selectedValue && this.value.startsWith(_selectedValue) && this.value.length > _selectedValue.length) {
+        // IME đã nối tiếp → cắt bỏ phần cũ, giữ lại phần mới gõ
+        this.value = this.value.substring(_selectedValue.length);
     }
+    _wasSelected = false;
+    _selectedValue = '';
 });
 
 // Real-time search
