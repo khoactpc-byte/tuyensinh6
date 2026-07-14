@@ -11,7 +11,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
     <!-- Announcement Ticker -->
@@ -31,16 +31,21 @@
         <header class="header">
             <div class="header-top-bar">
                 <div class="header-actions-left">
+                    <!-- Nút liên kết Google Sheet (Chỉ hiện khi là Admin) -->
+                    <a href="https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/edit" target="_blank" id="openSheetBtn" class="sheet-btn hidden">
+                        <i class="fa-solid fa-table-cells"></i> <span class="admin-text">Mở Sheet</span>
+                    </a>
+                    <!-- Nút Cập nhật dữ liệu từ file -->
+                    <input type="file" id="fileUploadInput" accept=".xlsx" style="display: none;">
+                    <button id="uploadBtn" class="sheet-btn hidden" style="background: #eab308; border-color: #eab308; color: white;" onclick="document.getElementById('fileUploadInput').click()">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> <span class="admin-text">Cập nhật</span>
+                    </button>
+                </div>
+                <div class="header-actions">
                     <!-- Nút Thống Kê (Chỉ hiện khi là Admin) -->
                     <button id="statsBtn" class="sheet-btn hidden" style="background: var(--primary); border-color: var(--primary);" onclick="showStats()">
                         <i class="fa-solid fa-chart-pie"></i> <span class="admin-text">Thống kê</span>
                     </button>
-                </div>
-                <div class="header-actions">
-                    <!-- Nút liên kết Google Sheet (Chỉ hiện khi là Admin) -->
-                    <a href="https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/edit" target="_blank" id="openSheetBtn" class="sheet-btn hidden">
-                        <i class="fa-solid fa-table-cells"></i> <span class="admin-text">Sheet</span>
-                    </a>
                     <button id="adminLoginBtn" class="admin-btn" title="Đăng nhập dành cho nhà trường"><i class="fa-solid fa-lock"></i> <span class="admin-text">Admin</span></button>
                 </div>
             </div>
@@ -57,8 +62,11 @@
 
         <!-- Admin Config Section -->
         <section id="adminConfigSection" class="admin-config-section hidden">
-            <h3><i class="fa-solid fa-bullhorn"></i> Cài đặt Thông báo chạy ngang</h3>
-            <div class="config-form">
+            <h3 id="toggleConfigBtn" onclick="toggleConfigPanel()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+                <span><i class="fa-solid fa-bullhorn"></i> Cài đặt Thông báo chạy ngang</span>
+                <i id="accordionIcon" class="fa-solid fa-chevron-down"></i>
+            </h3>
+            <div id="configPanel" class="config-form" style="display: none;">
                 <div class="toggle-group">
                     <label class="switch">
                         <input type="checkbox" id="configEnableNotif">
@@ -70,6 +78,22 @@
                 <button id="saveConfigBtn" class="btn-primary" style="padding: 10px 20px; font-size: 1rem;"><i class="fa-solid fa-floppy-disk"></i> Lưu cài đặt</button>
             </div>
         </section>
+
+        <script>
+            function toggleConfigPanel() {
+                var panel = document.getElementById('configPanel');
+                var icon = document.getElementById('accordionIcon');
+                if (panel.style.display === 'none') {
+                    panel.style.display = 'flex'; // Form sử dụng display flex từ class .config-form
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                } else {
+                    panel.style.display = 'none';
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                }
+            }
+        </script>
 
         <section class="search-section">
             <div class="search-box">
@@ -117,7 +141,66 @@
 
     <!-- PapaParse Library for CSV Parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <!-- Custom JavaScript -->
+    <!-- SheetJS (xlsx) for Excel parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Template In Phiếu -->
+    <div id="printArea" class="print-area">
+        <div class="print-stt-box">STT: <strong id="p-stt"></strong></div>
+        
+        <div class="print-header">
+            <div class="print-header-left">
+                ỦY BAN NHÂN DÂN<br>THÀNH PHỐ HỒ CHÍ MINH<br><strong>SỞ GIÁO DỤC VÀ ĐÀO TẠO</strong><br><hr class="print-hr">
+            </div>
+            <div class="print-header-right">
+                <strong>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br>Độc lập - Tự do - Hạnh phúc</strong><br><hr class="print-hr">
+            </div>
+        </div>
+
+        <h2 class="print-title">PHIẾU XÁC NHẬN ĐỐI TƯỢNG VÀ KHU VỰC ĐĂNG KÝ TUYỂN SINH</h2>
+
+        <div class="print-section">
+            <h3 class="print-section-title">A. THÔNG TIN HỌC SINH</h3>
+            <p>- Họ tên học sinh: <strong id="p-name"></strong></p>
+            <div class="print-row">
+                <div class="print-col">- Giới tính: <strong id="p-gender"></strong></div>
+                <div class="print-col">- Dân tộc: <strong id="p-ethic"></strong></div>
+            </div>
+            <div class="print-row">
+                <div class="print-col">- Ngày sinh: <strong id="p-dob"></strong></div>
+                <div class="print-col">- Nơi sinh: <strong id="p-pob"></strong></div>
+            </div>
+            <p>- Số định danh cá nhân: <strong id="p-id"></strong></p>
+            <p>- Năm học 2025 - 2026 là học sinh: <strong id="p-school"></strong></p>
+            <p>- Nơi ở hiện tại:</p>
+            <div class="print-indent">
+                <p>+ Số nhà, đường: <strong id="p-address"></strong></p>
+                <div class="print-row">
+                    <div class="print-col">+ Tổ/Xóm: <strong id="p-to">................................................</strong></div>
+                    <div class="print-col">+ Khu phố/Ấp: <strong id="p-khu"></strong></div>
+                </div>
+                <p>+ Phường/Xã: <strong id="p-phuong"></strong></p>
+                <p>+ Tỉnh/Thành phố: <strong id="p-tinh"></strong></p>
+            </div>
+        </div>
+
+        <div class="print-section">
+            <h3 class="print-section-title">B. THÔNG TIN LIÊN HỆ</h3>
+            <div class="print-row">
+                <div class="print-col">- Họ tên: <strong id="p-parent-name"></strong></div>
+                <div class="print-col">- Vai trò: <strong id="p-parent-role"></strong></div>
+            </div>
+            <p>- SĐT liên hệ: <strong id="p-parent-phone"></strong></p>
+        </div>
+
+        <div class="print-footer">
+            <div class="print-footer-right">
+                <p><em>Ngày ....... tháng.......năm 2026</em></p>
+                <p class="print-signature-title"><strong>Cha mẹ học sinh hoặc người giám hộ<br>(nếu có)</strong><br><em>(Ký và ghi rõ họ tên)</em></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="Code_GoogleAppsScript.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

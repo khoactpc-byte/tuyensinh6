@@ -121,7 +121,7 @@ body {
 .container {
     width: 100%;
     max-width: 800px;
-    padding: 40px 20px;
+    padding: 15px 20px 40px 20px;
     z-index: 1;
 }
 
@@ -129,19 +129,19 @@ body {
 .header {
     position: relative;
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
     animation: fadeInDown 0.8s ease-out;
 }
 
 .logo-container {
-    width: 100px;
-    height: 100px;
+    width: 75px;
+    height: 75px;
     background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 20px;
+    margin: 0 auto 10px;
     box-shadow: var(--shadow);
     color: var(--primary);
     overflow: hidden;
@@ -155,10 +155,10 @@ body {
 }
 
 .header h1 {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: var(--primary);
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     letter-spacing: -0.02em;
 }
 
@@ -413,9 +413,15 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Hide unneeded texts in Admin mode */
+body.admin-active .subtitle,
+body.admin-active .status-message {
+    display: none !important;
+}
+
 .header-actions-left {
     position: absolute;
-    top: 20px;
+    top: 15px;
     left: 20px;
     display: flex;
     gap: 10px;
@@ -423,7 +429,7 @@ body {
 
 .header-actions {
     position: absolute;
-    top: 20px;
+    top: 15px;
     right: 20px;
     display: flex;
     gap: 10px;
@@ -606,6 +612,24 @@ body {
     body.admin-active .admin-text {
         display: inline; /* Show text when in admin mode */
     }
+}
+
+/* Accordion Styles */
+.accordion-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-sm);
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--card-shadow);
 }
 
 .admin-btn {
@@ -813,22 +837,26 @@ body {
     backdrop-filter: blur(16px);
     border: 1px solid var(--surface-border);
     border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 25px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
     box-shadow: var(--card-shadow);
     animation: fadeInDown 0.5s ease-out;
 }
 
 .admin-config-section h3 {
-    margin-bottom: 15px;
+    margin-bottom: 0px;
     color: var(--primary);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    padding: 5px 0;
 }
 
 .config-form {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    margin-top: 15px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 15px;
 }
 
 .toggle-group {
@@ -905,3 +933,110 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+
+/* Responsive Height cho Laptop */
+@media (max-height: 850px) {
+  .container { padding-top: 5px; padding-bottom: 20px; }
+  .logo-container { width: 55px; height: 55px; margin-bottom: 5px; }
+  .header h1 { font-size: 1.5rem; margin-bottom: 0px; }
+  .header { margin-bottom: 15px; }
+  .search-section { margin-bottom: 20px; }
+  .search-box { padding: 4px 8px 4px 16px; }
+  .search-box input { padding: 8px 12px; font-size: 1rem; }
+  .btn-primary { padding: 10px 20px; }
+  .accordion-btn { padding: 8px 12px; font-size: 0.9rem; }
+  .result-card { padding: 15px; }
+  .card-header { padding-bottom: 10px; margin-bottom: 10px; }
+}
+
+/* Print Styles */
+@media screen {
+    .print-area { display: none; }
+}
+
+@media print {
+    @page {
+        margin: 15mm 15mm 15mm 25mm; /* Trên Phải Dưới Trái (Trái rộng hơn để đóng gáy) */
+    }
+    body * {
+        visibility: hidden;
+    }
+    .print-area, .print-area * {
+        visibility: visible;
+    }
+    .print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        font-family: "Times New Roman", Times, serif;
+        color: #000;
+        font-size: 13pt;
+        line-height: 1.5;
+    }
+    .print-stt-box {
+        position: absolute;
+        top: 0px;
+        right: 0;
+        border: 1px solid #000;
+        padding: 5px 15px;
+        font-weight: bold;
+    }
+    .print-header {
+        display: flex;
+        justify-content: space-between;
+        text-align: center;
+        margin-bottom: 30px;
+        margin-top: 50px;
+    }
+    .print-header-left {
+        width: 40%;
+    }
+    .print-header-right {
+        width: 60%;
+        white-space: nowrap;
+    }
+    .print-hr {
+        width: 50%;
+        margin: 5px auto;
+        height: 0;
+        background-color: transparent;
+        border: none;
+        border-top: 1px solid #000;
+    }
+    .print-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 15pt;
+        margin-bottom: 20px;
+    }
+    .print-section {
+        margin-bottom: 20px;
+    }
+    .print-section-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .print-row {
+        display: flex;
+        justify-content: space-between;
+    }
+    .print-col {
+        width: 48%;
+    }
+    .print-indent {
+        padding-left: 20px;
+    }
+    .print-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 40px;
+        text-align: center;
+    }
+    .print-footer-right {
+        width: 50%;
+    }
+    .print-signature-title {
+        margin-top: 5px;
+    }
+}
