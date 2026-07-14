@@ -560,13 +560,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // File Upload Logic
 if (fileUploadInput) {
     fileUploadInput.addEventListener('change', function(e) {
-        // Yêu cầu nhập mật khẩu trước khi cập nhật Sheet
-        const pass = prompt('Nhập mật khẩu để cập nhật dữ liệu:');
-        if (pass !== 'khoa186') {
-            if (pass !== null) alert('Sai mật khẩu!');
-            fileUploadInput.value = '';
-            return;
-        }
         const file = e.target.files[0];
         if (!file) return;
 

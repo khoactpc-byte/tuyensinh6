@@ -37,7 +37,7 @@
                     </a>
                     <!-- Nút Cập nhật dữ liệu từ file -->
                     <input type="file" id="fileUploadInput" accept=".xlsx" style="display: none;">
-                    <button id="uploadBtn" class="sheet-btn hidden" style="background: #eab308; border-color: #eab308; color: white;" onclick="document.getElementById('fileUploadInput').click()">
+                    <button id="uploadBtn" class="sheet-btn hidden" style="background: #eab308; border-color: #eab308; color: white;" onclick="var p=prompt('Nhập mật khẩu để cập nhật:'); if(p==='khoa186'){document.getElementById('fileUploadInput').click();}else if(p!==null){alert('Sai mật khẩu!')}">
                         <i class="fa-solid fa-cloud-arrow-up"></i> <span class="admin-text">Cập nhật</span>
                     </button>
                 </div>
