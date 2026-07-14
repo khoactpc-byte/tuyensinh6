@@ -195,7 +195,7 @@ function renderResults(results, query) {
             <div class="result-card">
                 <div class="card-header">
                     <div class="student-info">
-                        <h2>${name}</h2>
+                        <h2>${name.toUpperCase()}</h2>
                         <div class="student-id"><i class="fa-regular fa-id-card"></i> Số định danh: ${id}</div>
                         <div class="student-time" style="color: #ef4444; font-weight: bold; font-size: 0.95rem;">
                             <i class="fa-regular fa-clock"></i> Thời gian hẹn: ${time}
@@ -291,10 +291,7 @@ function refreshAndSearch() {
 
 // Event Listeners
 searchBtn.addEventListener('click', refreshAndSearch);
-// Focus/Click tự động bôi đen toàn bộ text để nhập nhanh hơn
-searchInput.addEventListener('click', function() {
-    this.select();
-});
+// Chỉ bôi đen khi focus (dùng phím tab), không bôi đen khi click chuột để tránh lỗi gõ Unikey
 searchInput.addEventListener('focus', function() {
     this.select();
 });
