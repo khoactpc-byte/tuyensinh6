@@ -291,7 +291,10 @@ function refreshAndSearch() {
 
 // Event Listeners
 searchBtn.addEventListener('click', refreshAndSearch);
-// Chỉ bôi đen khi focus (dùng phím tab), không bôi đen khi click chuột để tránh lỗi gõ Unikey
+// Focus/Click tự động bôi đen toàn bộ text để nhập nhanh hơn
+searchInput.addEventListener('click', function() {
+    this.select();
+});
 searchInput.addEventListener('focus', function() {
     this.select();
 });
