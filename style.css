@@ -956,7 +956,7 @@ input:checked + .slider:before {
 
 @media print {
     @page {
-        margin: 15mm 15mm 15mm 25mm; /* Trên Phải Dưới Trái (Trái rộng hơn để đóng gáy) */
+        margin: 15mm 10mm 15mm 15mm; /* Trên Phải Dưới Trái (nới rộng bề ngang để tiêu đề cùng 1 hàng) */
     }
     body * {
         visibility: hidden;

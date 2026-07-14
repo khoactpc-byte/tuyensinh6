@@ -301,8 +301,11 @@ searchInput.addEventListener('focus', function() {
 
 // Real-time search
 let searchTimeout;
-searchInput.addEventListener('input', (e) => {
-    if (e.key === 'Enter') refreshAndSearch();
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        refreshAndSearch();
+    }
 });
 
 // Admin Modal Logic
