@@ -428,13 +428,6 @@ if (saveConfigBtn) {
 
 window.updateStudent = function(stt) {
     if (!SCRIPT_URL) { alert("Thiết lập SCRIPT_URL!"); return; }
-    
-    // Yêu cầu nhập mật khẩu trước khi cập nhật
-    const pass = prompt('Nhập mật khẩu để cập nhật:');
-    if (pass !== 'khoa186') {
-        if (pass !== null) alert('Sai mật khẩu!');
-        return;
-    }
     const isEnrolled = document.getElementById(`check_${stt}`).checked;
     const hasEnglish = document.getElementById(`eng_${stt}`).checked;
     const isTransfer = document.getElementById(`transfer_${stt}`).checked;
@@ -567,6 +560,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // File Upload Logic
 if (fileUploadInput) {
     fileUploadInput.addEventListener('change', function(e) {
+        // Yêu cầu nhập mật khẩu trước khi cập nhật Sheet
+        const pass = prompt('Nhập mật khẩu để cập nhật dữ liệu:');
+        if (pass !== 'khoa186') {
+            if (pass !== null) alert('Sai mật khẩu!');
+            fileUploadInput.value = '';
+            return;
+        }
         const file = e.target.files[0];
         if (!file) return;
 
