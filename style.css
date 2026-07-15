@@ -1010,6 +1010,7 @@ input:checked + .slider:before {
         color: #000;
         font-size: 13pt;
         line-height: 1.5;
+        padding-top: 1px;
     }
     .print-stt-box {
         position: absolute;
