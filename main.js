@@ -805,24 +805,29 @@ window.executeBatchPrint = function() {
     const template = document.getElementById('printArea');
 
     studentsToPrint.forEach(student => {
-        document.getElementById('p-stt').textContent = student[0] || '';
-        document.getElementById('p-name').textContent = (student[3] || '').toUpperCase();
-        document.getElementById('p-name-2').textContent = (student[3] || '').toUpperCase();
-        document.getElementById('p-gender').textContent = student[4] || '';
-        document.getElementById('p-ethic').textContent = student[7] || 'Kinh';
-        document.getElementById('p-dob').textContent = student[5] || '';
-        document.getElementById('p-pob').textContent = student[6] || '';
-        document.getElementById('p-id').textContent = student[1] || '';
-        document.getElementById('p-school').textContent = student[10] || '';
+        const clone = template.cloneNode(true);
+        clone.removeAttribute('id');
+        clone.style.position = 'relative';
+        clone.style.pageBreakAfter = 'always';
+
+        clone.querySelector('#p-stt').textContent = student[0] || '';
+        clone.querySelector('#p-name').textContent = (student[3] || '').toUpperCase();
+        clone.querySelector('#p-name-2').textContent = (student[3] || '').toUpperCase();
+        clone.querySelector('#p-gender').textContent = student[4] || '';
+        clone.querySelector('#p-ethic').textContent = student[7] || 'Kinh';
+        clone.querySelector('#p-dob').textContent = student[5] || '';
+        clone.querySelector('#p-pob').textContent = student[6] || '';
+        clone.querySelector('#p-id').textContent = student[1] || '';
+        clone.querySelector('#p-school').textContent = student[10] || '';
         
         const soNha = student[19] || '';
-        document.getElementById('p-address').textContent = soNha;
-        document.getElementById('p-to').textContent = student[17] ? student[17] : '................................................';
-        document.getElementById('p-khu').textContent = student[16] || '';
-        document.getElementById('p-phuong').textContent = student[15] || '';
+        clone.querySelector('#p-address').textContent = soNha;
+        clone.querySelector('#p-to').textContent = student[17] ? student[17] : '................................................';
+        clone.querySelector('#p-khu').textContent = student[16] || '';
+        clone.querySelector('#p-phuong').textContent = student[15] || '';
         
         const thanhPho = student[14] || '';
-        document.getElementById('p-tinh').textContent = thanhPho ? thanhPho : 'Thành phố Hồ Chí Minh';
+        clone.querySelector('#p-tinh').textContent = thanhPho ? thanhPho : 'Thành phố Hồ Chí Minh';
 
         let parentName = '';
         let parentRole = '';
@@ -842,15 +847,14 @@ window.executeBatchPrint = function() {
             parentPhone = student[34] || student[31] || '';
         }
 
-        document.getElementById('p-parent-name').textContent = parentName;
-        document.getElementById('p-parent-role').textContent = parentRole;
-        document.getElementById('p-parent-phone').textContent = parentPhone;
-
-        const clone = template.cloneNode(true);
-        clone.removeAttribute('id');
-        clone.style.position = 'relative';
-        clone.style.pageBreakAfter = 'always';
+        clone.querySelector('#p-parent-name').textContent = parentName;
+        clone.querySelector('#p-parent-role').textContent = parentRole;
+        clone.querySelector('#p-parent-phone').textContent = parentPhone;
         
+        // Clean up IDs to avoid duplicate ID issues in the DOM
+        const elementsWithId = clone.querySelectorAll('[id]');
+        elementsWithId.forEach(el => el.removeAttribute('id'));
+
         wrapper.appendChild(clone);
     });
 
