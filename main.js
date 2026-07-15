@@ -124,8 +124,11 @@ function performSearch() {
             const idMatch = cleanRawID.includes(cleanQueryID);
             const sttMatch = rawSTT === query.trim();
             
-            if (nameMatch || idMatch || sttMatch) {
-                localResults.push(row);
+            const isShortNumber = /^\d+$/.test(query.trim()) && query.trim().length < 4;
+            if (isShortNumber) {
+                if (sttMatch) localResults.push(row);
+            } else {
+                if (nameMatch || idMatch || sttMatch) localResults.push(row);
             }
         }
         

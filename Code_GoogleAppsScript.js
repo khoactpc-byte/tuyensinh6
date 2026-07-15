@@ -115,8 +115,11 @@ function doPost(e) {
         var idMatch = cleanRawID.includes(cleanQueryID);
         var sttMatch = rawSTT === query.trim();
         
-        if (nameMatch || idMatch || sttMatch) {
-          results.push(row);
+        var isShortNumber = /^\d+$/.test(query.trim()) && query.trim().length < 4;
+        if (isShortNumber) {
+          if (sttMatch) results.push(row);
+        } else {
+          if (nameMatch || idMatch || sttMatch) results.push(row);
         }
       }
       
