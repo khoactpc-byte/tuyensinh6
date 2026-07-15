@@ -110,7 +110,7 @@ function performSearch() {
 
     fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: 'search', query: query })
+        body: JSON.stringify({ action: 'search', query: query, password: adminSessionPassword })
     })
     .then(r => r.json())
     .then(res => {

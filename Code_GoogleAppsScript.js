@@ -45,7 +45,10 @@ function doPost(e) {
     
     else if (action === 'search') {
       var query = data.query;
-      if (!query || query.length < 3) {
+      var providedPass = data.password;
+      var isSuperOrAdmin = (providedPass === adminPassword || providedPass === superPassword);
+      
+      if (!isSuperOrAdmin && (!query || query.length < 3)) {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Từ khóa quá ngắn'})).setMimeType(ContentService.MimeType.JSON);
       }
       
@@ -71,7 +74,7 @@ function doPost(e) {
         }
       }
       
-      if (results.length > 3) {
+      if (!isSuperOrAdmin && results.length > 3) {
         return ContentService.createTextOutput(JSON.stringify({
           status: 'too_many', 
           count: results.length
