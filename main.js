@@ -191,12 +191,34 @@ function renderResults(results, query) {
         const addressParts = [soNha, khuPho, phuongXa].filter(part => part && part.trim() !== '');
         const address = addressParts.length > 0 ? addressParts.join(', ') : 'Không có thông tin';
 
+        let displayId = id;
+        let displayAddress = soNha ? soNha : 'Không có thông tin';
+        let displayKhuPho = khuPho ? khuPho : 'Không có thông tin';
+        let displayPhuongXa = phuongXa ? phuongXa : 'Không có thông tin';
+        
+        let needsUnlock = false;
+
+        // Nếu không phải Admin và tìm kiếm không phải là số (không phải tìm theo Mã/STT)
+        if (!isAdmin && !/^\d+$/.test(query.trim())) {
+            needsUnlock = true;
+            if (id.length >= 8) {
+                // Ẩn 4 số giữa
+                const midStart = Math.floor((id.length - 4) / 2);
+                displayId = id.substring(0, midStart) + '****' + id.substring(midStart + 4);
+            } else {
+                displayId = '***';
+            }
+            displayAddress = '***';
+            displayKhuPho = '***';
+            displayPhuongXa = '***';
+        }
+
         let cardHTML = `
             <div class="result-card">
                 <div class="card-header">
                     <div class="student-info">
                         <h2>${name.toUpperCase()}</h2>
-                        <div class="student-id"><i class="fa-regular fa-id-card"></i> Số định danh: ${id}</div>
+                        <div class="student-id"><i class="fa-regular fa-id-card"></i> Số định danh: <span id="id_text_${stt}">${displayId}</span></div>
                         <div class="student-time" style="color: #ef4444; font-weight: bold; font-size: 0.95rem;">
                             <i class="fa-regular fa-clock"></i> Thời gian hẹn: ${time}
                         </div>
@@ -209,9 +231,19 @@ function renderResults(results, query) {
                 <div class="card-body">
                     <div class="detail-item"><i class="fa-regular fa-calendar"></i> <strong>Ngày sinh:</strong> ${dob}</div>
                     <div class="detail-item"><i class="fa-solid fa-school"></i> <strong>Trường:</strong> ${school}</div>
-                    <div class="detail-item"><i class="fa-solid fa-location-dot"></i> <strong>Địa chỉ:</strong> ${soNha ? soNha : 'Không có thông tin'}</div>
-                    <div class="detail-item" style="margin-left: 30px;"><i class="fa-solid fa-map"></i> <strong>Khu phố:</strong> ${khuPho ? khuPho : 'Không có thông tin'}</div>
-                    <div class="detail-item" style="margin-left: 30px;"><i class="fa-solid fa-map-location-dot"></i> <strong>Phường/Xã:</strong> ${phuongXa ? phuongXa : 'Không có thông tin'}</div>
+                    
+                    <div id="obscured_addr_${stt}">
+                        <div class="detail-item"><i class="fa-solid fa-location-dot"></i> <strong>Địa chỉ:</strong> ${displayAddress}</div>
+                        <div class="detail-item" style="margin-left: 30px;"><i class="fa-solid fa-map"></i> <strong>Khu phố:</strong> ${displayKhuPho}</div>
+                        <div class="detail-item" style="margin-left: 30px;"><i class="fa-solid fa-map-location-dot"></i> <strong>Phường/Xã:</strong> ${displayPhuongXa}</div>
+                        ${needsUnlock ? `<button onclick="unlockInfo('${stt}')" style="margin-top: 10px; padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: 500;"><i class="fa-solid fa-unlock"></i> Bấm vào đây để xem đủ thông tin</button>` : ''}
+                    </div>
+
+                    <div id="revealed_addr_${stt}" style="display: none;">
+                        <div class="detail-item"><i class="fa-solid fa-location-dot"></i> <strong>Địa chỉ:</strong> ${soNha ? soNha : 'Không có thông tin'}</div>
+                        <div class="detail-item" style="margin-left: 30px;"><i class="fa-solid fa-map"></i> <strong>Khu phố:</strong> ${khuPho ? khuPho : 'Không có thông tin'}</div>
+                        <div class="detail-item" style="margin-left: 30px;"><i class="fa-solid fa-map-location-dot"></i> <strong>Phường/Xã:</strong> ${phuongXa ? phuongXa : 'Không có thông tin'}</div>
+                    </div>
                 </div>
         `;
         
@@ -424,6 +456,20 @@ if (saveConfigBtn) {
             saveConfigBtn.disabled = false; 
         });
     });
+}
+
+window.unlockInfo = function(stt) {
+    const student = studentsData.find(s => s[0] && s[0].toString() === stt.toString());
+    if (!student) return;
+    const realId = student[1] || '';
+    const pass = prompt('Vui lòng nhập Mã định danh cá nhân của học sinh để xem chi tiết:');
+    if (pass === realId) {
+        document.getElementById(`obscured_addr_${stt}`).style.display = 'none';
+        document.getElementById(`revealed_addr_${stt}`).style.display = 'block';
+        document.getElementById(`id_text_${stt}`).innerText = realId;
+    } else if (pass !== null) {
+        alert('Mã định danh không chính xác!');
+    }
 }
 
 window.updateStudent = function(stt) {
