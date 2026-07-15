@@ -9,7 +9,8 @@ function removeAccents(str) {
 function doPost(e) {
   // Thay đổi ở đây: Giấu kín Sheet ID và Mật khẩu ở phía máy chủ
   var sheetId = '1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc';
-  var adminPassword = 'khoa186';
+  var adminPassword = 'nan123';
+  var superPassword = 'khoa186';
   
   try {
     var data = JSON.parse(e.postData.contents);
@@ -53,7 +54,6 @@ function doPost(e) {
       var normalizedQuery = removeAccents(query);
       var results = [];
       
-      // Bỏ qua 2 dòng đầu (headers)
       for (var i = 2; i < values.length; i++) {
         var row = values[i];
         var rawID = row[1] ? row[1].toString() : '';
@@ -88,24 +88,29 @@ function doPost(e) {
     // CÁC CHỨC NĂNG BẢO MẬT (Yêu cầu mật khẩu)
     // ==========================================
     
-    if (data.password !== adminPassword) {
+    var providedPass = data.password;
+    var isAdmin = (providedPass === adminPassword);
+    var isSuper = (providedPass === superPassword);
+    
+    if (!isAdmin && !isSuper) {
       return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Sai mật khẩu'})).setMimeType(ContentService.MimeType.JSON);
     }
     
+    var role = isSuper ? 'super' : 'admin';
+    
     if (action === 'login') {
-      // Đăng nhập thành công, trả về URL của Sheet
       var sheetUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/edit';
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success', 
-        sheetUrl: sheetUrl
+        sheetUrl: sheetUrl,
+        role: role
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
     else if (action === 'getAllData') {
       var dataSheet = ss.getSheetByName('tuyensinh');
       var values = dataSheet.getDataRange().getValues();
-      var studentsData = values.slice(2); // Bỏ qua 2 dòng headers
-      
+      var studentsData = values.slice(2);
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
         results: studentsData
@@ -114,23 +119,31 @@ function doPost(e) {
     
     else if (action === 'updateConfig') {
       var configSheet = ss.getSheetByName('CONFIG');
-      if (!configSheet) {
-        configSheet = ss.insertSheet('CONFIG');
-      }
+      if (!configSheet) configSheet = ss.insertSheet('CONFIG');
       configSheet.getRange('A1').setValue(data.enableNotification);
       configSheet.getRange('B1').setValue(data.notificationText);
       return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
     } 
     
+    else if (action === 'verifySuper') {
+      if (isSuper) {
+        return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+      } else {
+        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Sai mật khẩu cấp cao'})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    
     else if (action === 'updateStudent') {
+      if (!isSuper) return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Cần mật khẩu cấp cao'})).setMimeType(ContentService.MimeType.JSON);
+      
       var dataSheet = ss.getSheetByName('tuyensinh');
       var stt = data.stt;
       var values = dataSheet.getDataRange().getValues();
       var rowIndex = -1;
       
-      for (var i = 1; i < values.length; i++) { // Bỏ qua header
-        if (values[i][0] == stt) { // Cột A là STT (index 0)
-          rowIndex = i + 1; // getRange thì 1-based
+      for (var i = 1; i < values.length; i++) {
+        if (values[i][0] == stt) {
+          rowIndex = i + 1;
           break;
         }
       }
@@ -147,6 +160,8 @@ function doPost(e) {
     }
     
     else if (action === 'addStudents') {
+      if (!isSuper) return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Cần mật khẩu cấp cao'})).setMimeType(ContentService.MimeType.JSON);
+      
       var dataSheet = ss.getSheetByName('tuyensinh');
       var newStudents = data.newStudents;
       if (newStudents && newStudents.length > 0) {

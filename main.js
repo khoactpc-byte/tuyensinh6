@@ -3,6 +3,7 @@ let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCYWMAbkmeiZXyvaCkwTY
 let studentsData = [];
 let isAdmin = false;
 let adminSessionPassword = '';
+let adminRole = '';
 let adminSheetUrl = '';
 let fullAdminData = null;
 
@@ -371,6 +372,7 @@ function handleLogin() {
             isAdmin = true;
             adminSessionPassword = pwd;
             adminSheetUrl = res.sheetUrl;
+            adminRole = res.role;
             document.body.classList.add('admin-active');
             adminModal.classList.add('hidden');
             adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> <span class="admin-text">Thoát Admin</span>';
@@ -472,6 +474,14 @@ window.unlockInfo = function(stt) {
 
 window.updateStudent = function(stt) {
     if (!SCRIPT_URL) { alert("Thiết lập SCRIPT_URL!"); return; }
+    
+    let passToUse = adminSessionPassword;
+    if (adminRole !== 'super') {
+        const p = prompt('Vui lòng nhập mật khẩu cấp cao (khoa186) để Cập nhật:');
+        if (!p) return;
+        passToUse = p;
+    }
+
     const isEnrolled = document.getElementById(`check_${stt}`).checked;
     const hasEnglish = document.getElementById(`eng_${stt}`).checked;
     const isTransfer = document.getElementById(`transfer_${stt}`).checked;
@@ -483,7 +493,7 @@ window.updateStudent = function(stt) {
     fetch(SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify({ 
-            password: adminSessionPassword, 
+            password: passToUse, 
             action: 'updateStudent',
             stt: stt, 
             daNhapHoc: isEnrolled ? 'x' : '', 
@@ -496,34 +506,45 @@ window.updateStudent = function(stt) {
     .then(res => {
         if (res.status === 'success') {
             btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lưu';
+            if (adminRole !== 'super') {
+                adminRole = 'super';
+                adminSessionPassword = passToUse;
+            }
             
             // Cập nhật dữ liệu ngay lập tức vào bộ nhớ tạm (không cần F5)
             const studentIndex = studentsData.findIndex(s => s[0] && s[0].toString() === stt.toString());
             if (studentIndex !== -1) {
-                // Nếu mảng con chưa đủ dài, cần push thêm phần tử rỗng để tránh lỗi
-                while (studentsData[studentIndex].length < 54) {
-                    studentsData[studentIndex].push('');
-                }
+                while (studentsData[studentIndex].length < 54) studentsData[studentIndex].push('');
                 studentsData[studentIndex][49] = isEnrolled ? 'x' : '';
                 studentsData[studentIndex][50] = hasEnglish ? 'x' : '';
                 studentsData[studentIndex][51] = isTransfer ? 'x' : '';
                 studentsData[studentIndex][52] = note;
             }
-
+            if (fullAdminData) {
+                const fsIndex = fullAdminData.findIndex(s => s[0] && s[0].toString() === stt.toString());
+                if (fsIndex !== -1) {
+                    while (fullAdminData[fsIndex].length < 54) fullAdminData[fsIndex].push('');
+                    fullAdminData[fsIndex][49] = isEnrolled ? 'x' : '';
+                    fullAdminData[fsIndex][50] = hasEnglish ? 'x' : '';
+                    fullAdminData[fsIndex][51] = isTransfer ? 'x' : '';
+                    fullAdminData[fsIndex][52] = note;
+                }
+            }
+            
             setTimeout(() => {
-                btn.innerText = originalText;
+                btn.innerHTML = '<i class="fa-regular fa-floppy-disk"></i> Lưu';
                 btn.disabled = false;
             }, 2000);
-        } else { 
-            alert('Lỗi: ' + res.message); 
-            btn.innerText = originalText; 
-            btn.disabled = false; 
+        } else {
+            alert('Lỗi: ' + res.message);
+            btn.innerHTML = '<i class="fa-regular fa-floppy-disk"></i> Lưu';
+            btn.disabled = false;
         }
     })
-    .catch(e => { 
-        alert('Lỗi mạng!'); 
-        btn.innerText = originalText; 
-        btn.disabled = false; 
+    .catch(e => {
+        alert('Lỗi kết nối');
+        btn.innerHTML = '<i class="fa-regular fa-floppy-disk"></i> Lưu';
+        btn.disabled = false;
     });
 };
 
@@ -685,7 +706,7 @@ if (fileUploadInput) {
                 fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({ 
-                        password: adminSessionPassword,
+                        password: uploadPass,
                         action: 'addStudents',
                         newStudents: newStudents
                     })
@@ -775,6 +796,43 @@ window.showBatchPrintModal = function() {
 };
 
 window.executeBatchPrint = function() {
+    if (!isAdmin) return;
+    if (!fullAdminData) {
+        alert("Dữ liệu đang được tải về từ máy chủ, vui lòng thử lại sau vài giây...");
+        return;
+    }
+
+    if (adminRole !== 'super') {
+        const p = prompt('Vui lòng nhập mật khẩu cấp cao (khoa186) để In hàng loạt:');
+        if (!p) return;
+        
+        const btn = document.getElementById('batchPrintExecBtn');
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xác thực...';
+        
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'verifySuper', password: p })
+        }).then(r => r.json()).then(res => {
+            if (res.status === 'success') {
+                adminRole = 'super';
+                adminSessionPassword = p;
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-print"></i> Tiến hành In';
+                doBatchPrint();
+            } else {
+                if (btn) btn.innerHTML = '<i class="fa-solid fa-print"></i> Tiến hành In';
+                alert('Sai mật khẩu cấp cao!');
+            }
+        }).catch(err => {
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-print"></i> Tiến hành In';
+            alert('Lỗi mạng!');
+        });
+        return;
+    }
+
+    doBatchPrint();
+};
+
+function doBatchPrint() {
     if (!isAdmin) return;
     if (!fullAdminData) {
         alert("Dữ liệu đang được tải về từ máy chủ, vui lòng thử lại sau vài giây...");
@@ -890,4 +948,4 @@ window.executeBatchPrint = function() {
         wrapper.style.display = 'none';
         wrapper.innerHTML = '';
     }, 1000);
-};
+}
