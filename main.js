@@ -719,6 +719,7 @@ function printForm(stt) {
     // A. Thông tin học sinh
     document.getElementById('p-stt').textContent = student[0] || '';
     document.getElementById('p-name').textContent = (student[3] || '').toUpperCase();
+    document.getElementById('p-name-2').textContent = (student[3] || '').toUpperCase(); // Cho mặt sau
     document.getElementById('p-gender').textContent = student[4] || '';
     document.getElementById('p-ethic').textContent = student[7] || 'Kinh';
     document.getElementById('p-dob').textContent = student[5] || '';
