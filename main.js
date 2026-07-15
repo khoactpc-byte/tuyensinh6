@@ -241,58 +241,9 @@ function renderResults(results, query) {
     });
 }
 
-// Function to fetch fresh data before searching
-function refreshAndSearch() {
-    const query = searchInput.value.trim();
-    if (query === '') {
-        resultsContainer.innerHTML = '';
-        return;
-    }
-
-    // Bảo mật: Yêu cầu độ dài tùy theo loại tìm kiếm (Tên hay Mã định danh)
-    if (!isAdmin) {
-        const justDigits = query.replace(/\s/g, '');
-        if (/^\d+$/.test(justDigits)) {
-            if (justDigits.length < 10) {
-                resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập ít nhất 10 số của Mã định danh để tra cứu.</p>';
-                return;
-            }
-        } else {
-            if (query.length < 4) {
-                resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập ít nhất 4 ký tự tên để tra cứu.</p>';
-                return;
-            }
-        }
-    }
-
-    const originalText = searchBtn.innerHTML;
-    searchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-    searchBtn.disabled = true;
-
-    const antiCacheUrl = `${CSV_URL}&t=${new Date().getTime()}`;
-    Papa.parse(antiCacheUrl, {
-        download: true,
-        header: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-            if (results.data && results.data.length > 0) {
-                studentsData = results.data;
-            }
-            performSearch();
-            searchBtn.innerHTML = originalText;
-            searchBtn.disabled = false;
-        },
-        error: function(err) {
-            console.error('Lỗi tải dữ liệu:', err);
-            performSearch();
-            searchBtn.innerHTML = originalText;
-            searchBtn.disabled = false;
-        }
-    });
-}
 
 // Event Listeners
-searchBtn.addEventListener('click', refreshAndSearch);
+searchBtn.addEventListener('click', performSearch);
 // === Xử lý bôi đen + fix lỗi bộ gõ Tiếng Việt (Unikey/EVKey) ===
 // Khi bật IME tiếng Việt, gõ đè lên vùng bôi đen sẽ bị nối tiếp thay vì thay thế.
 // Giải pháp: Lưu giá trị cũ khi click, sau khi ký tự mới được chèn (input event),
@@ -329,7 +280,7 @@ let searchTimeout;
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
-        refreshAndSearch();
+        performSearch();
     }
 });
 
@@ -715,7 +666,7 @@ if (fileUploadInput) {
                 .then(res => {
                     if (res.status === 'success') {
                         alert('Cập nhật thành công! Đang tải lại dữ liệu...');
-                        refreshAndSearch();
+                        performSearch();
                     } else {
                         alert('Lỗi khi lưu lên server: ' + res.message);
                     }
