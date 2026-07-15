@@ -208,9 +208,7 @@ function renderResults(results, query) {
             } else {
                 displayId = '***';
             }
-            displayAddress = '***';
-            displayKhuPho = '***';
-            displayPhuongXa = '***';
+            displayAddress = '***'; // Chỉ che số nhà
         }
 
         let cardHTML = `
