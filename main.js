@@ -93,6 +93,29 @@ function loadConfig() {
         }
     })
     .catch(err => console.error('Lỗi tải config:', err));
+
+    // Lấy ngày tháng năm từ Sheet CONFIG thông qua CSV
+    const configAntiCacheUrl = `${CONFIG_CSV_URL}&t=${new Date().getTime()}`;
+    Papa.parse(configAntiCacheUrl, {
+        download: true,
+        header: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+            if (results && results.data && results.data.length >= 2) {
+                const row = results.data[1]; // Dòng 2 (index 1)
+                const month = row[12] ? row[12].trim() : '.......'; // M2 (Index 12)
+                const year = row[13] ? row[13].trim() : '2026';     // N2 (Index 13)
+                const schoolYear = isNaN(parseInt(year)) ? '2026 – 2027' : `${year} – ${parseInt(year) + 1}`;
+                
+                document.querySelectorAll('.dynamic-month').forEach(el => el.textContent = month);
+                document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = year);
+                document.querySelectorAll('.dynamic-school-year').forEach(el => el.textContent = schoolYear);
+            }
+        },
+        error: function(err) {
+            console.error('Lỗi tải CSV config:', err);
+        }
+    });
 }
 
 // Search Logic
