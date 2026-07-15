@@ -133,18 +133,27 @@ body {
     animation: fadeInDown 0.8s ease-out;
 }
 
+.header-title-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    margin-top: 15px;
+}
+
 .logo-container {
     width: 75px;
     height: 75px;
-    background: white;
+    background: transparent;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 10px;
-    box-shadow: var(--shadow);
+    margin: 0 20px 0 0;
+    box-shadow: none;
     color: var(--primary);
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .school-logo {
@@ -963,6 +972,13 @@ input:checked + .slider:before {
     }
     .print-area, .print-area * {
         visibility: visible;
+    }
+    body.batch-print #batchPrintWrapper, body.batch-print #batchPrintWrapper * {
+        visibility: visible;
+    }
+    body.batch-print .print-area {
+        position: relative !important;
+        page-break-after: always;
     }
     .print-area {
         position: absolute;

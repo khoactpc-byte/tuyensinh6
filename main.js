@@ -765,3 +765,97 @@ function printForm(stt) {
 
     window.print();
 }
+
+window.showBatchPrintModal = function() {
+    document.getElementById('batchPrintModal').style.display = 'flex';
+};
+
+window.executeBatchPrint = function() {
+    const mode = document.querySelector('input[name="printMode"]:checked').value;
+    let studentsToPrint = [];
+
+    if (mode === 'all') {
+        studentsToPrint = studentsData.filter(s => {
+            if (!s[0]) return false;
+            const isEnrolled = (s[49] || '').trim().toLowerCase() === 'x';
+            return !isEnrolled;
+        });
+    } else {
+        const start = parseInt(document.getElementById('printStart').value) || 0;
+        const end = parseInt(document.getElementById('printEnd').value) || 999999;
+        studentsToPrint = studentsData.filter(s => {
+            if (!s[0]) return false;
+            const stt = parseInt(s[0]);
+            const isEnrolled = (s[49] || '').trim().toLowerCase() === 'x';
+            return stt >= start && stt <= end && !isEnrolled;
+        });
+    }
+
+    if (studentsToPrint.length === 0) {
+        alert("Không tìm thấy học sinh nào phù hợp hoặc tất cả đã được đánh dấu Đăng ký!");
+        return;
+    }
+
+    const wrapper = document.getElementById('batchPrintWrapper');
+    wrapper.innerHTML = '';
+    const template = document.getElementById('printArea');
+
+    studentsToPrint.forEach(student => {
+        document.getElementById('p-stt').textContent = student[0] || '';
+        document.getElementById('p-name').textContent = (student[3] || '').toUpperCase();
+        document.getElementById('p-name-2').textContent = (student[3] || '').toUpperCase();
+        document.getElementById('p-gender').textContent = student[4] || '';
+        document.getElementById('p-ethic').textContent = student[7] || 'Kinh';
+        document.getElementById('p-dob').textContent = student[5] || '';
+        document.getElementById('p-pob').textContent = student[6] || '';
+        document.getElementById('p-id').textContent = student[1] || '';
+        document.getElementById('p-school').textContent = student[10] || '';
+        
+        const soNha = student[19] || '';
+        document.getElementById('p-address').textContent = soNha;
+        document.getElementById('p-to').textContent = student[17] ? student[17] : '................................................';
+        document.getElementById('p-khu').textContent = student[16] || '';
+        document.getElementById('p-phuong').textContent = student[15] || '';
+        
+        const thanhPho = student[14] || '';
+        document.getElementById('p-tinh').textContent = thanhPho ? thanhPho : 'Thành phố Hồ Chí Minh';
+
+        let parentName = '';
+        let parentRole = '';
+        let parentPhone = '';
+
+        if (student[25] && student[25].trim() !== '') {
+            parentName = student[25];
+            parentRole = 'Mẹ';
+            parentPhone = student[29] || student[26] || '';
+        } else if (student[20] && student[20].trim() !== '') {
+            parentName = student[20];
+            parentRole = 'Cha';
+            parentPhone = student[24] || student[21] || '';
+        } else if (student[30] && student[30].trim() !== '') {
+            parentName = student[30];
+            parentRole = 'Người giám hộ';
+            parentPhone = student[34] || student[31] || '';
+        }
+
+        document.getElementById('p-parent-name').textContent = parentName;
+        document.getElementById('p-parent-role').textContent = parentRole;
+        document.getElementById('p-parent-phone').textContent = parentPhone;
+
+        const clone = template.cloneNode(true);
+        clone.removeAttribute('id');
+        clone.style.position = 'relative';
+        clone.style.pageBreakAfter = 'always';
+        
+        wrapper.appendChild(clone);
+    });
+
+    document.body.classList.add('batch-print');
+    document.getElementById('batchPrintModal').style.display = 'none';
+
+    setTimeout(() => {
+        window.print();
+        document.body.classList.remove('batch-print');
+        wrapper.innerHTML = '';
+    }, 500);
+};
