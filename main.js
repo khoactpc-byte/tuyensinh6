@@ -457,12 +457,14 @@ window.unlockInfo = function(stt) {
 window.updateStudent = function(stt) {
     if (!SCRIPT_URL) { alert("Thiết lập SCRIPT_URL!"); return; }
     
-    let passToUse = adminSessionPassword;
     if (adminRole !== 'super') {
-        const p = prompt('Vui lòng nhập mật khẩu cấp cao (khoa186) để Cập nhật:');
-        if (!p) return;
-        passToUse = p;
+        requireSuperPassword(() => {
+            window.updateStudent(stt);
+        });
+        return;
     }
+
+    let passToUse = adminSessionPassword;
 
     const isEnrolled = document.getElementById(`check_${stt}`).checked;
     const hasEnglish = document.getElementById(`eng_${stt}`).checked;
@@ -775,28 +777,9 @@ function printForm(stt) {
 
 window.showBatchPrintModal = function() {
     if (!isAdmin) return;
-    
-    if (adminRole !== 'super') {
-        const p = prompt('Vui lòng nhập mật khẩu cấp cao (khoa186) để mở tính năng In hàng loạt:');
-        if (!p) return;
-        
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'verifySuper', password: p })
-        }).then(r => r.json()).then(res => {
-            if (res.status === 'success') {
-                adminRole = 'super';
-                adminSessionPassword = p;
-                document.getElementById('batchPrintModal').style.display = 'flex';
-            } else {
-                alert('Sai mật khẩu cấp cao!');
-            }
-        }).catch(err => {
-            alert('Lỗi mạng!');
-        });
-    } else {
+    requireSuperPassword(() => {
         document.getElementById('batchPrintModal').style.display = 'flex';
-    }
+    });
 };
 
 window.executeBatchPrint = function() {
@@ -937,3 +920,52 @@ function removeAccentsLocal(str) {
               .replace(/đ/g, 'd').replace(/Đ/g, 'D')
               .toLowerCase().trim();
 }
+
+let superPassCallback = null;
+
+window.requireSuperPassword = function(callback) {
+    if (adminRole === 'super') {
+        callback();
+        return;
+    }
+    
+    superPassCallback = callback;
+    document.getElementById('superPassInput').value = '';
+    document.getElementById('superPassModal').style.display = 'flex';
+    document.getElementById('superPassInput').focus();
+};
+
+document.getElementById('superPassInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') document.getElementById('superPassConfirm').click();
+});
+
+document.getElementById('superPassConfirm').addEventListener('click', function() {
+    const p = document.getElementById('superPassInput').value;
+    if (!p) return;
+    
+    const btn = document.getElementById('superPassConfirm');
+    const oldText = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+    btn.disabled = true;
+    
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'verifySuper', password: p })
+    }).then(r => r.json()).then(res => {
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+        if (res.status === 'success') {
+            adminRole = 'super';
+            adminSessionPassword = p;
+            document.getElementById('superPassModal').style.display = 'none';
+            if (superPassCallback) superPassCallback();
+        } else {
+            alert('Sai mật khẩu cấp cao!');
+            document.getElementById('superPassInput').focus();
+        }
+    }).catch(err => {
+        btn.innerHTML = oldText;
+        btn.disabled = false;
+        alert('Lỗi mạng!');
+    });
+});
