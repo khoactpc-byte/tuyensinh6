@@ -1,39 +1,128 @@
+function removeAccents(str) {
+  if (!str) return '';
+  return str.toString().normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+            .toLowerCase().trim();
+}
+
 function doPost(e) {
+  // Thay đổi ở đây: Giấu kín Sheet ID và Mật khẩu ở phía máy chủ
   var sheetId = '1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc';
+  var adminPassword = 'khoa186';
   
   try {
     var data = JSON.parse(e.postData.contents);
-    if (data.password !== 'nan123') {
-      return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Sai mật khẩu'})).setMimeType(ContentService.MimeType.JSON);
-    }
-    
+    var action = data.action;
     var ss = SpreadsheetApp.openById(sheetId);
     
-    if (data.action === 'updateConfig') {
-      var configSheet = ss.getSheetByName('CONFIG');
-      if (!configSheet) {
-        configSheet = ss.insertSheet('CONFIG');
-      }
-      // Lưu cài đặt thông báo vào dòng 1
-      configSheet.getRange('A1').setValue(data.enableNotification);
-      configSheet.getRange('B1').setValue(data.notificationText);
-      return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
-    } 
-    else if (data.action === 'getConfig') {
+    // ==========================================
+    // CÁC CHỨC NĂNG CÔNG KHAI (Không cần mật khẩu)
+    // ==========================================
+    
+    if (action === 'getConfig') {
       var configSheet = ss.getSheetByName('CONFIG');
       var isEnabled = false;
       var text = '';
+      var month = '.......';
+      var year = '2026';
+      
       if (configSheet) {
         isEnabled = configSheet.getRange('A1').getValue();
         text = configSheet.getRange('B1').getValue();
+        month = configSheet.getRange('M2').getValue() || '.......';
+        year = configSheet.getRange('N2').getValue() || '2026';
       }
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
         enableNotification: isEnabled,
-        notificationText: text
+        notificationText: text,
+        month: month,
+        year: year
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    else if (data.action === 'updateStudent') {
+    
+    else if (action === 'search') {
+      var query = data.query;
+      if (!query || query.length < 3) {
+        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Từ khóa quá ngắn'})).setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      var dataSheet = ss.getSheetByName('tuyensinh');
+      var values = dataSheet.getDataRange().getValues();
+      var normalizedQuery = removeAccents(query);
+      var results = [];
+      
+      // Bỏ qua 2 dòng đầu (headers)
+      for (var i = 2; i < values.length; i++) {
+        var row = values[i];
+        var rawID = row[1] ? row[1].toString() : '';
+        var rawName = row[3] ? row[3].toString() : '';
+        var rawSTT = row[0] ? row[0].toString() : '';
+        
+        var cleanRawID = removeAccents(rawID).replace(/^0+/, '');
+        var cleanQueryID = normalizedQuery.replace(/^0+/, '');
+        var nameMatch = removeAccents(rawName).includes(normalizedQuery);
+        var idMatch = cleanRawID.includes(cleanQueryID);
+        var sttMatch = rawSTT === query.trim();
+        
+        if (nameMatch || idMatch || sttMatch) {
+          results.push(row);
+        }
+      }
+      
+      if (results.length > 3) {
+        return ContentService.createTextOutput(JSON.stringify({
+          status: 'too_many', 
+          count: results.length
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success', 
+        results: results
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // ==========================================
+    // CÁC CHỨC NĂNG BẢO MẬT (Yêu cầu mật khẩu)
+    // ==========================================
+    
+    if (data.password !== adminPassword) {
+      return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Sai mật khẩu'})).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (action === 'login') {
+      // Đăng nhập thành công, trả về URL của Sheet
+      var sheetUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/edit';
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success', 
+        sheetUrl: sheetUrl
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    else if (action === 'getAllData') {
+      var dataSheet = ss.getSheetByName('tuyensinh');
+      var values = dataSheet.getDataRange().getValues();
+      var studentsData = values.slice(2); // Bỏ qua 2 dòng headers
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        results: studentsData
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    else if (action === 'updateConfig') {
+      var configSheet = ss.getSheetByName('CONFIG');
+      if (!configSheet) {
+        configSheet = ss.insertSheet('CONFIG');
+      }
+      configSheet.getRange('A1').setValue(data.enableNotification);
+      configSheet.getRange('B1').setValue(data.notificationText);
+      return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+    } 
+    
+    else if (action === 'updateStudent') {
       var dataSheet = ss.getSheetByName('tuyensinh');
       var stt = data.stt;
       var values = dataSheet.getDataRange().getValues();
@@ -47,10 +136,6 @@ function doPost(e) {
       }
       
       if (rowIndex > -1) {
-        // Cột J là cột thứ 10 (Đã nhập học)
-        // Cột K là cột thứ 11 (Tiếng Anh)
-        // Cột L là cột thứ 12 (Chuyển trường)
-        // Cột M là cột thứ 13 (Ghi chú)
         dataSheet.getRange(rowIndex, 10).setValue(data.daNhapHoc);
         dataSheet.getRange(rowIndex, 11).setValue(data.tiengAnh);
         dataSheet.getRange(rowIndex, 12).setValue(data.chuyenTruong);
@@ -60,44 +145,30 @@ function doPost(e) {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không tìm thấy STT'})).setMimeType(ContentService.MimeType.JSON);
       }
     }
-    else if (data.action === 'addStudents') {
+    
+    else if (action === 'addStudents') {
       var dataSheet = ss.getSheetByName('tuyensinh');
-      if (!dataSheet) {
-        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không tìm thấy sheet tuyensinh'})).setMimeType(ContentService.MimeType.JSON);
-      }
-      
       var newStudents = data.newStudents;
       if (newStudents && newStudents.length > 0) {
         var lastRow = dataSheet.getLastRow();
         var lastStt = 0;
-        
         if (lastRow > 2) { 
           var lastSttValue = dataSheet.getRange(lastRow, 1).getValue();
-          if (!isNaN(lastSttValue) && lastSttValue !== '') {
-            lastStt = parseInt(lastSttValue);
-          } else {
-            lastStt = lastRow - 2; 
-          }
+          if (!isNaN(lastSttValue) && lastSttValue !== '') lastStt = parseInt(lastSttValue);
+          else lastStt = lastRow - 2; 
         }
-        
         for (var i = 0; i < newStudents.length; i++) {
           lastStt++;
           newStudents[i][0] = lastStt; 
         }
-        
         var numRows = newStudents.length;
         var numCols = newStudents[0].length;
-        
         var newRange = dataSheet.getRange(lastRow + 1, 1, numRows, numCols);
         newRange.setValues(newStudents);
-        
-        // --- TỰ ĐỘNG SAO CHÉP ĐỊNH DẠNG ---
-        // Lấy định dạng từ dòng cuối cùng (trước khi thêm) để áp dụng cho các dòng mới
         if (lastRow > 2) {
           var sourceRange = dataSheet.getRange(lastRow, 1, 1, numCols);
           sourceRange.copyTo(newRange, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
         }
-        
         return ContentService.createTextOutput(JSON.stringify({status: 'success', count: numRows})).setMimeType(ContentService.MimeType.JSON);
       } else {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không có dữ liệu mới'})).setMimeType(ContentService.MimeType.JSON);
@@ -112,19 +183,5 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  var sheetId = '1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc';
-  var ss = SpreadsheetApp.openById(sheetId);
-  var configSheet = ss.getSheetByName('CONFIG');
-  
-  var config = {
-    enableNotification: false,
-    notificationText: ''
-  };
-  
-  if (configSheet) {
-    config.enableNotification = configSheet.getRange('A1').getValue();
-    config.notificationText = configSheet.getRange('B1').getValue();
-  }
-  
-  return ContentService.createTextOutput(JSON.stringify({status: 'success', config: config})).setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput("API Tuyen Sinh is running.").setMimeType(ContentService.MimeType.TEXT);
 }

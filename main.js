@@ -1,9 +1,10 @@
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/gviz/tq?tqx=out:csv&sheet=tuyensinh';
-const CONFIG_CSV_URL = 'https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/gviz/tq?tqx=out:csv&sheet=CONFIG';
 let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCYWMAbkmeiZXyvaCkwTYmlU0yyIaZgQSPwW7jcL8GjZdksIHltafvroHAgyLt-4pLKg/exec';
 
 let studentsData = [];
-let isAdmin = false; // Trạng thái Admin
+let isAdmin = false;
+let adminSessionPassword = '';
+let adminSheetUrl = '';
+let fullAdminData = null;
 
 // Elements
 const searchInput = document.getElementById('searchInput');
@@ -40,39 +41,17 @@ function removeAccents(str) {
 
 // Fetch and Parse CSV
 function loadData() {
-    statusMessage.textContent = 'Đang tải dữ liệu, vui lòng đợi...';
-    const antiCacheUrl = `${CSV_URL}&t=${new Date().getTime()}`;
-    
-    Papa.parse(antiCacheUrl, {
-        download: true,
-        header: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-            // Remove the first row (headers)
-            studentsData = results.data.slice(2);
-            statusMessage.textContent = 'Dữ liệu đã sẵn sàng. Vui lòng nhập thông tin để tra cứu.';
-            statusMessage.style.color = 'var(--text-muted)';
-            statusMessage.style.display = 'block';
-            
-            // Enable search
-            searchInput.disabled = false;
-            searchBtn.disabled = false;
-        },
-        error: function(error) {
-            console.error('Lỗi khi tải dữ liệu:', error);
-            statusMessage.textContent = 'Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.';
-            statusMessage.style.color = 'var(--highlight)';
-        }
-    });
+    statusMessage.textContent = 'Hệ thống đã sẵn sàng. Vui lòng nhập thông tin để tra cứu.';
+    statusMessage.style.color = 'var(--text-muted)';
+    statusMessage.style.display = 'block';
+    searchInput.disabled = false;
+    searchBtn.disabled = false;
 }
 
 function loadConfig() {
     fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ 
-            password: 'nan123',
-            action: 'getConfig'
-        })
+        body: JSON.stringify({ action: 'getConfig' })
     })
     .then(r => r.json())
     .then(res => {
@@ -80,7 +59,6 @@ function loadConfig() {
             let isEnabled = res.enableNotification === true || res.enableNotification === 'TRUE' || res.enableNotification === 'true';
             let text = res.notificationText || '';
             
-            // Cập nhật giao diện
             if (configEnableNotif) configEnableNotif.checked = isEnabled;
             if (configNotifText) configNotifText.value = text;
 
@@ -90,32 +68,17 @@ function loadConfig() {
             } else {
                 newsTicker.style.display = 'none';
             }
+            
+            const month = res.month || '.......';
+            const year = res.year || '2026';
+            const schoolYear = isNaN(parseInt(year)) ? '2026 – 2027' : `${year} – ${parseInt(year) + 1}`;
+            
+            document.querySelectorAll('.dynamic-month').forEach(el => el.textContent = month);
+            document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = year);
+            document.querySelectorAll('.dynamic-school-year').forEach(el => el.textContent = schoolYear);
         }
     })
     .catch(err => console.error('Lỗi tải config:', err));
-
-    // Lấy ngày tháng năm từ Sheet CONFIG thông qua CSV
-    const configAntiCacheUrl = `${CONFIG_CSV_URL}&t=${new Date().getTime()}`;
-    Papa.parse(configAntiCacheUrl, {
-        download: true,
-        header: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-            if (results && results.data && results.data.length >= 2) {
-                const row = results.data[1]; // Dòng 2 (index 1)
-                const month = row[12] ? row[12].trim() : '.......'; // M2 (Index 12)
-                const year = row[13] ? row[13].trim() : '2026';     // N2 (Index 13)
-                const schoolYear = isNaN(parseInt(year)) ? '2026 – 2027' : `${year} – ${parseInt(year) + 1}`;
-                
-                document.querySelectorAll('.dynamic-month').forEach(el => el.textContent = month);
-                document.querySelectorAll('.dynamic-year').forEach(el => el.textContent = year);
-                document.querySelectorAll('.dynamic-school-year').forEach(el => el.textContent = schoolYear);
-            }
-        },
-        error: function(err) {
-            console.error('Lỗi tải CSV config:', err);
-        }
-    });
 }
 
 // Search Logic
@@ -127,17 +90,14 @@ function performSearch() {
         return;
     }
 
-    // Bảo mật: Yêu cầu độ dài tùy theo loại tìm kiếm (Tên hay Mã định danh)
     if (!isAdmin) {
         const justDigits = query.replace(/\s/g, '');
         if (/^\d+$/.test(justDigits)) {
-            // Nếu nhập toàn số -> Đang tìm ID -> Yêu cầu ít nhất 10 số
             if (justDigits.length < 10) {
                 resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập ít nhất 10 số của Mã định danh để tra cứu.</p>';
                 return;
             }
         } else {
-            // Nếu có chữ -> Đang tìm Tên -> Yêu cầu ít nhất 4 ký tự
             if (query.length < 4) {
                 resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-circle-exclamation"></i> Vui lòng nhập ít nhất 4 ký tự tên để tra cứu.</p>';
                 return;
@@ -145,42 +105,30 @@ function performSearch() {
         }
     }
 
-    const normalizedQuery = removeAccents(query);
-    
-    // Filter data
-    let filteredResults = studentsData.filter(student => {
-        const rawName = student[3] || '';
-        const rawID = student[1] || '';
-        
-        // Remove leading zeros for ID comparison
-        const cleanRawID = removeAccents(rawID).replace(/^0+/, '');
-        const cleanQueryID = normalizedQuery.replace(/^0+/, '');
+    resultsContainer.innerHTML = '<div style="text-align:center; margin-top:20px;"><i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color:var(--primary);"></i><p style="margin-top:10px;">Đang tìm kiếm trên máy chủ...</p></div>';
 
-        const nameMatch = removeAccents(rawName).includes(normalizedQuery);
-        const idMatch = cleanRawID.includes(cleanQueryID);
-        
-        return nameMatch || idMatch;
-    });
-
-    // Ưu tiên tra cứu STT chính xác cho Admin
-    if (isAdmin && /^\d+$/.test(normalizedQuery)) {
-        const exactSTT = studentsData.filter(student => {
-            const rawSTT = student[0] ? student[0].toString() : '';
-            return rawSTT === normalizedQuery;
-        });
-        
-        if (exactSTT.length > 0) {
-            filteredResults = exactSTT;
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'search', query: query })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'success') {
+            renderResults(res.results, query);
+        } else if (res.status === 'too_many') {
+            if (!isAdmin) {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-shield-halved"></i> Có quá nhiều kết quả (' + res.count + '). Vui lòng nhập đầy đủ và chính xác Họ Tên hoặc Mã Định Danh để bảo vệ thông tin cá nhân của học sinh.</p>';
+            } else {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px;">Kết quả tìm kiếm quá nhiều (' + res.count + '). Hãy cung cấp từ khóa chi tiết hơn.</p>';
+            }
+        } else {
+            resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px;">' + (res.message || 'Lỗi tìm kiếm') + '</p>';
         }
-    }
-
-    // Bảo mật: Không cho phép hiển thị quá 3 kết quả đối với phụ huynh để tránh rò rỉ dữ liệu
-    if (!isAdmin && filteredResults.length > 3) {
-        resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px; font-weight: 500;"><i class="fa-solid fa-shield-halved"></i> Có quá nhiều kết quả (' + filteredResults.length + '). Vui lòng nhập đầy đủ và chính xác Họ Tên hoặc Mã Định Danh để bảo vệ thông tin cá nhân của học sinh.</p>';
-        return;
-    }
-
-    renderResults(filteredResults, query);
+    })
+    .catch(err => {
+        resultsContainer.innerHTML = '<p style="text-align: center; color: #ef4444; margin-top: 20px;">Lỗi mạng khi tìm kiếm.</p>';
+        console.error(err);
+    });
 }
 
 // Render HTML
@@ -411,24 +359,49 @@ closeModalBtn.addEventListener('click', () => {
 });
 
 function handleLogin() {
-    if (adminPassword.value === 'nan123') {
-        isAdmin = true;
-        document.body.classList.add('admin-active');
-        adminModal.classList.add('hidden');
-        adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> <span class="admin-text">Thoát Admin</span>';
-        adminLoginBtn.style.background = '#10b981';
-        adminLoginBtn.style.color = 'white';
-        openSheetBtn.classList.remove('hidden');
-        if (uploadBtn) uploadBtn.classList.remove('hidden');
-        const statsBtn = document.getElementById('statsBtn');
-        if (statsBtn) statsBtn.classList.remove('hidden');
-        const batchPrintBtn = document.getElementById('batchPrintBtn');
-        if (batchPrintBtn) batchPrintBtn.classList.remove('hidden');
-        adminConfigSection.classList.remove('hidden');
-        if (searchInput.value.trim() !== '') performSearch();
-    } else {
-        adminError.classList.remove('hidden');
-    }
+    const pwd = adminPassword.value;
+    adminLoginBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+    fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'login', password: pwd })
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'success') {
+            isAdmin = true;
+            adminSessionPassword = pwd;
+            adminSheetUrl = res.sheetUrl;
+            document.body.classList.add('admin-active');
+            adminModal.classList.add('hidden');
+            adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock-open"></i> <span class="admin-text">Thoát Admin</span>';
+            adminLoginBtn.style.background = '#10b981';
+            adminLoginBtn.style.color = 'white';
+            openSheetBtn.classList.remove('hidden');
+            if (uploadBtn) uploadBtn.classList.remove('hidden');
+            const statsBtn = document.getElementById('statsBtn');
+            if (statsBtn) statsBtn.classList.remove('hidden');
+            const batchPrintBtn = document.getElementById('batchPrintBtn');
+            if (batchPrintBtn) batchPrintBtn.classList.remove('hidden');
+            adminConfigSection.classList.remove('hidden');
+            if (searchInput.value.trim() !== '') performSearch();
+            
+            // Tải dữ liệu ngầm cho chức năng in/thống kê
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'getAllData', password: pwd })
+            }).then(r => r.json()).then(res2 => {
+                if (res2.status === 'success') fullAdminData = res2.results;
+            });
+        } else {
+            adminError.classList.remove('hidden');
+            adminError.textContent = res.message || 'Sai mật khẩu';
+            adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock"></i> <span class="admin-text">Admin</span>';
+        }
+    })
+    .catch(err => {
+        alert('Lỗi mạng khi đăng nhập');
+        adminLoginBtn.innerHTML = '<i class="fa-solid fa-lock"></i> <span class="admin-text">Admin</span>';
+    });
 }
 
 submitAdminBtn.addEventListener('click', handleLogin);
@@ -445,7 +418,7 @@ if (saveConfigBtn) {
         fetch(SCRIPT_URL, {
             method: 'POST',
             body: JSON.stringify({ 
-                password: 'nan123',
+                password: adminSessionPassword,
                 action: 'updateConfig',
                 enableNotification: isEnabled,
                 notificationText: text
@@ -510,7 +483,7 @@ window.updateStudent = function(stt) {
     fetch(SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify({ 
-            password: 'nan123', 
+            password: adminSessionPassword, 
             action: 'updateStudent',
             stt: stt, 
             daNhapHoc: isEnrolled ? 'x' : '', 
@@ -580,13 +553,17 @@ if (configEnableNotif && configNotifText) {
 
 window.showStats = function() {
     if (!isAdmin) return;
+    if (!fullAdminData) {
+        alert("Dữ liệu đang được tải về từ máy chủ, vui lòng thử lại sau vài giây...");
+        return;
+    }
     
-    let total = studentsData.length;
+    let total = fullAdminData.length;
     let nhapHoc = 0;
     let tiengAnh = 0;
     let chuyenTruong = 0;
 
-    studentsData.forEach(student => {
+    fullAdminData.forEach(student => {
         if ((student[49] || '').trim().toLowerCase() === 'x') nhapHoc++;
         if ((student[50] || '').trim().toLowerCase() === 'x') tiengAnh++;
         if ((student[51] || '').trim().toLowerCase() === 'x') chuyenTruong++;
@@ -708,7 +685,7 @@ if (fileUploadInput) {
                 fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({ 
-                        password: 'nan123',
+                        password: adminSessionPassword,
                         action: 'addStudents',
                         newStudents: newStudents
                     })
@@ -798,59 +775,81 @@ window.showBatchPrintModal = function() {
 };
 
 window.executeBatchPrint = function() {
-    const mode = document.querySelector('input[name="printMode"]:checked').value;
+    if (!isAdmin) return;
+    if (!fullAdminData) {
+        alert("Dữ liệu đang được tải về từ máy chủ, vui lòng thử lại sau vài giây...");
+        return;
+    }
+
+    const startIdxInput = document.getElementById('batchStartIdx').value;
+    const endIdxInput = document.getElementById('batchEndIdx').value;
+    const printAll = document.getElementById('batchPrintAll').checked;
+
     let studentsToPrint = [];
 
-    if (mode === 'all') {
-        studentsToPrint = studentsData.filter(s => {
-            if (!s[0]) return false;
-            const isEnrolled = (s[49] || '').trim().toLowerCase() === 'x';
-            return !isEnrolled;
+    if (printAll) {
+        studentsToPrint = fullAdminData.filter(s => {
+            const hasRegistered = (s[49] || '').toString().trim().toLowerCase() === 'x';
+            return !hasRegistered;
         });
     } else {
-        const start = parseInt(document.getElementById('printStart').value) || 0;
-        const end = parseInt(document.getElementById('printEnd').value) || 999999;
-        studentsToPrint = studentsData.filter(s => {
-            if (!s[0]) return false;
+        const start = parseInt(startIdxInput);
+        const end = parseInt(endIdxInput);
+
+        if (isNaN(start) || isNaN(end) || start > end) {
+            alert('Khoảng số thứ tự không hợp lệ!');
+            return;
+        }
+
+        studentsToPrint = fullAdminData.filter(s => {
             const stt = parseInt(s[0]);
-            const isEnrolled = (s[49] || '').trim().toLowerCase() === 'x';
-            return stt >= start && stt <= end && !isEnrolled;
+            const hasRegistered = (s[49] || '').toString().trim().toLowerCase() === 'x';
+            return !isNaN(stt) && stt >= start && stt <= end && !hasRegistered;
         });
     }
 
     if (studentsToPrint.length === 0) {
-        alert("Không tìm thấy học sinh nào phù hợp hoặc tất cả đã được đánh dấu Đăng ký!");
+        alert('Không tìm thấy học sinh nào thỏa mãn điều kiện in!');
         return;
     }
 
     const wrapper = document.getElementById('batchPrintWrapper');
     wrapper.innerHTML = '';
+    
+    // We must query '.print-area' from index.html (the single single-print template is actually #printArea, wait! In HTML, does #printArea exist or .print-area?)
+    // Let me check index.html. Actually the old code used document.getElementById('printArea').
     const template = document.getElementById('printArea');
+    if (!template) {
+        alert("Không tìm thấy trang mẫu để in.");
+        return;
+    }
 
     studentsToPrint.forEach(student => {
         const clone = template.cloneNode(true);
         clone.removeAttribute('id');
         clone.style.position = 'relative';
         clone.style.pageBreakAfter = 'always';
+        clone.style.pageBreakBefore = 'avoid';
+        clone.style.display = 'block';
 
-        clone.querySelector('#p-stt').textContent = student[0] || '';
-        clone.querySelector('#p-name').textContent = (student[3] || '').toUpperCase();
-        clone.querySelector('#p-name-2').textContent = (student[3] || '').toUpperCase();
-        clone.querySelector('#p-gender').textContent = student[4] || '';
-        clone.querySelector('#p-ethic').textContent = student[7] || 'Kinh';
-        clone.querySelector('#p-dob').textContent = student[5] || '';
-        clone.querySelector('#p-pob').textContent = student[6] || '';
-        clone.querySelector('#p-id').textContent = student[1] || '';
-        clone.querySelector('#p-school').textContent = student[10] || '';
+        const el_stt = clone.querySelector('#p-stt'); if(el_stt) el_stt.textContent = student[0] || '';
+        const el_name = clone.querySelector('#p-name'); if(el_name) el_name.textContent = (student[3] || '').toUpperCase();
+        const el_name2 = clone.querySelector('#p-name-2'); if(el_name2) el_name2.textContent = (student[3] || '').toUpperCase();
+        const el_gender = clone.querySelector('#p-gender'); if(el_gender) el_gender.textContent = student[4] || '';
+        const el_ethic = clone.querySelector('#p-ethic'); if(el_ethic) el_ethic.textContent = student[7] || 'Kinh';
+        const el_dob = clone.querySelector('#p-dob'); if(el_dob) el_dob.textContent = student[5] || '';
+        const el_pob = clone.querySelector('#p-pob'); if(el_pob) el_pob.textContent = student[6] || '';
+        const el_id = clone.querySelector('#p-id'); if(el_id) el_id.textContent = student[1] || '';
+        const el_school = clone.querySelector('#p-school'); if(el_school) el_school.textContent = student[10] || '';
         
         const soNha = student[19] || '';
-        clone.querySelector('#p-address').textContent = soNha;
-        clone.querySelector('#p-to').textContent = student[17] ? student[17] : '................................................';
-        clone.querySelector('#p-khu').textContent = student[16] || '';
-        clone.querySelector('#p-phuong').textContent = student[15] || '';
+        const el_address = clone.querySelector('#p-address'); if(el_address) el_address.textContent = soNha;
+        const el_to = clone.querySelector('#p-to'); if(el_to) el_to.textContent = student[17] ? student[17] : '................................................';
+        const el_khu = clone.querySelector('#p-khu'); if(el_khu) el_khu.textContent = student[16] || '';
+        const el_phuong = clone.querySelector('#p-phuong'); if(el_phuong) el_phuong.textContent = student[15] || '';
         
         const thanhPho = student[14] || '';
-        clone.querySelector('#p-tinh').textContent = thanhPho ? thanhPho : 'Thành phố Hồ Chí Minh';
+        const el_tinh = clone.querySelector('#p-tinh'); if(el_tinh) el_tinh.textContent = thanhPho ? thanhPho : 'Thành phố Hồ Chí Minh';
 
         let parentName = '';
         let parentRole = '';
@@ -870,11 +869,10 @@ window.executeBatchPrint = function() {
             parentPhone = student[34] || student[31] || '';
         }
 
-        clone.querySelector('#p-parent-name').textContent = parentName;
-        clone.querySelector('#p-parent-role').textContent = parentRole;
-        clone.querySelector('#p-parent-phone').textContent = parentPhone;
+        const el_pname = clone.querySelector('#p-parent-name'); if(el_pname) el_pname.textContent = parentName;
+        const el_prole = clone.querySelector('#p-parent-role'); if(el_prole) el_prole.textContent = parentRole;
+        const el_pphone = clone.querySelector('#p-parent-phone'); if(el_pphone) el_pphone.textContent = parentPhone;
         
-        // Clean up IDs to avoid duplicate ID issues in the DOM
         const elementsWithId = clone.querySelectorAll('[id]');
         elementsWithId.forEach(el => el.removeAttribute('id'));
 
@@ -883,12 +881,13 @@ window.executeBatchPrint = function() {
 
     document.body.classList.add('batch-print');
     wrapper.style.display = 'block';
-    document.getElementById('batchPrintModal').style.display = 'none';
+    const batchModal = document.getElementById('batchPrintModal');
+    if (batchModal) batchModal.style.display = 'none';
 
     setTimeout(() => {
         window.print();
         document.body.classList.remove('batch-print');
-        wrapper.innerHTML = '';
         wrapper.style.display = 'none';
-    }, 500);
+        wrapper.innerHTML = '';
+    }, 1000);
 };
