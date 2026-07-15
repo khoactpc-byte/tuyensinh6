@@ -136,9 +136,9 @@ body {
 .header-title-container {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     text-align: left;
-    margin-top: 15px;
+    margin-top: 0px;
 }
 
 .logo-container {
@@ -428,20 +428,27 @@ body.admin-active .status-message {
     display: none !important;
 }
 
+.header-top-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
 .header-actions-left {
-    position: absolute;
-    top: 15px;
-    left: 20px;
+    position: static;
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 .header-actions {
-    position: absolute;
-    top: 15px;
-    right: 20px;
+    position: static;
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 640px) {

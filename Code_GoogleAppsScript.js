@@ -34,7 +34,7 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
     else if (data.action === 'updateStudent') {
-      var dataSheet = ss.getSheetByName('DATA');
+      var dataSheet = ss.getSheetByName('tuyensinh');
       var stt = data.stt;
       var values = dataSheet.getDataRange().getValues();
       var rowIndex = -1;
@@ -58,6 +58,49 @@ function doPost(e) {
         return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
       } else {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không tìm thấy STT'})).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+    else if (data.action === 'addStudents') {
+      var dataSheet = ss.getSheetByName('tuyensinh');
+      if (!dataSheet) {
+        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không tìm thấy sheet tuyensinh'})).setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      var newStudents = data.newStudents;
+      if (newStudents && newStudents.length > 0) {
+        var lastRow = dataSheet.getLastRow();
+        var lastStt = 0;
+        
+        if (lastRow > 2) { 
+          var lastSttValue = dataSheet.getRange(lastRow, 1).getValue();
+          if (!isNaN(lastSttValue) && lastSttValue !== '') {
+            lastStt = parseInt(lastSttValue);
+          } else {
+            lastStt = lastRow - 2; 
+          }
+        }
+        
+        for (var i = 0; i < newStudents.length; i++) {
+          lastStt++;
+          newStudents[i][0] = lastStt; 
+        }
+        
+        var numRows = newStudents.length;
+        var numCols = newStudents[0].length;
+        
+        var newRange = dataSheet.getRange(lastRow + 1, 1, numRows, numCols);
+        newRange.setValues(newStudents);
+        
+        // --- TỰ ĐỘNG SAO CHÉP ĐỊNH DẠNG ---
+        // Lấy định dạng từ dòng cuối cùng (trước khi thêm) để áp dụng cho các dòng mới
+        if (lastRow > 2) {
+          var sourceRange = dataSheet.getRange(lastRow, 1, 1, numCols);
+          sourceRange.copyTo(newRange, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
+        }
+        
+        return ContentService.createTextOutput(JSON.stringify({status: 'success', count: numRows})).setMimeType(ContentService.MimeType.JSON);
+      } else {
+        return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không có dữ liệu mới'})).setMimeType(ContentService.MimeType.JSON);
       }
     }
     

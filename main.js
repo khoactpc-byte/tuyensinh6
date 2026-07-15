@@ -373,6 +373,8 @@ adminLoginBtn.addEventListener('click', () => {
         if (uploadBtn) uploadBtn.classList.add('hidden');
         const statsBtn = document.getElementById('statsBtn');
         if (statsBtn) statsBtn.classList.add('hidden');
+        const batchPrintBtn = document.getElementById('batchPrintBtn');
+        if (batchPrintBtn) batchPrintBtn.classList.add('hidden');
         adminConfigSection.classList.add('hidden');
         performSearch();
     } else {
@@ -397,6 +399,8 @@ function handleLogin() {
         if (uploadBtn) uploadBtn.classList.remove('hidden');
         const statsBtn = document.getElementById('statsBtn');
         if (statsBtn) statsBtn.classList.remove('hidden');
+        const batchPrintBtn = document.getElementById('batchPrintBtn');
+        if (batchPrintBtn) batchPrintBtn.classList.remove('hidden');
         adminConfigSection.classList.remove('hidden');
         if (searchInput.value.trim() !== '') performSearch();
     } else {
