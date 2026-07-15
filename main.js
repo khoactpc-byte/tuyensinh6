@@ -774,7 +774,29 @@ function printForm(stt) {
 }
 
 window.showBatchPrintModal = function() {
-    document.getElementById('batchPrintModal').style.display = 'flex';
+    if (!isAdmin) return;
+    
+    if (adminRole !== 'super') {
+        const p = prompt('Vui lòng nhập mật khẩu cấp cao (khoa186) để mở tính năng In hàng loạt:');
+        if (!p) return;
+        
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'verifySuper', password: p })
+        }).then(r => r.json()).then(res => {
+            if (res.status === 'success') {
+                adminRole = 'super';
+                adminSessionPassword = p;
+                document.getElementById('batchPrintModal').style.display = 'flex';
+            } else {
+                alert('Sai mật khẩu cấp cao!');
+            }
+        }).catch(err => {
+            alert('Lỗi mạng!');
+        });
+    } else {
+        document.getElementById('batchPrintModal').style.display = 'flex';
+    }
 };
 
 window.executeBatchPrint = function() {
@@ -784,32 +806,7 @@ window.executeBatchPrint = function() {
         return;
     }
 
-    if (adminRole !== 'super') {
-        const p = prompt('Vui lòng nhập mật khẩu cấp cao (khoa186) để In hàng loạt:');
-        if (!p) return;
-        
-        const btn = document.getElementById('batchPrintExecBtn');
-        if (btn) btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang xác thực...';
-        
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'verifySuper', password: p })
-        }).then(r => r.json()).then(res => {
-            if (res.status === 'success') {
-                adminRole = 'super';
-                adminSessionPassword = p;
-                if (btn) btn.innerHTML = '<i class="fa-solid fa-print"></i> Tiến hành In';
-                doBatchPrint();
-            } else {
-                if (btn) btn.innerHTML = '<i class="fa-solid fa-print"></i> Tiến hành In';
-                alert('Sai mật khẩu cấp cao!');
-            }
-        }).catch(err => {
-            if (btn) btn.innerHTML = '<i class="fa-solid fa-print"></i> Tiến hành In';
-            alert('Lỗi mạng!');
-        });
-        return;
-    }
+    if (adminRole !== 'super') return;
 
     doBatchPrint();
 };
