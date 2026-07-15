@@ -855,11 +855,13 @@ window.executeBatchPrint = function() {
     });
 
     document.body.classList.add('batch-print');
+    wrapper.style.display = 'block';
     document.getElementById('batchPrintModal').style.display = 'none';
 
     setTimeout(() => {
         window.print();
         document.body.classList.remove('batch-print');
         wrapper.innerHTML = '';
+        wrapper.style.display = 'none';
     }, 500);
 };

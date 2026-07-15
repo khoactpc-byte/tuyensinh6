@@ -983,9 +983,23 @@ input:checked + .slider:before {
     body.batch-print #batchPrintWrapper, body.batch-print #batchPrintWrapper * {
         visibility: visible;
     }
+    body.batch-print #batchPrintWrapper {
+        display: block !important;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    body.batch-print #printArea {
+        display: none !important;
+    }
     body.batch-print .print-area {
         position: relative !important;
         page-break-after: always;
+        top: 0;
+        left: 0;
     }
     .print-area {
         position: absolute;
