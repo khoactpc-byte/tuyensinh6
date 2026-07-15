@@ -127,7 +127,7 @@ function performSearch() {
     // Filter data
     let filteredResults = studentsData.filter(student => {
         const rawName = student[3] || '';
-        const rawID = student[2] || '';
+        const rawID = student[1] || '';
         
         // Remove leading zeros for ID comparison
         const cleanRawID = removeAccents(rawID).replace(/^0+/, '');
