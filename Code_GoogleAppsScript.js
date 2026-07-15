@@ -1,3 +1,40 @@
+
+function setCacheLarge(key, dataStr) {
+  var cache = CacheService.getScriptCache();
+  var chunkSize = 90000;
+  var chunks = Math.ceil(dataStr.length / chunkSize);
+  cache.put(key + '_chunks', chunks.toString(), 300); // 5 phút
+  for (var i = 0; i < chunks; i++) {
+    cache.put(key + '_' + i, dataStr.substring(i * chunkSize, (i + 1) * chunkSize), 300);
+  }
+}
+
+function getCacheLarge(key) {
+  var cache = CacheService.getScriptCache();
+  var chunksStr = cache.get(key + '_chunks');
+  if (!chunksStr) return null;
+  var chunks = parseInt(chunksStr);
+  var dataStr = '';
+  for (var i = 0; i < chunks; i++) {
+    var chunk = cache.get(key + '_' + i);
+    if (!chunk) return null;
+    dataStr += chunk;
+  }
+  return dataStr;
+}
+
+function clearCache(key) {
+  var cache = CacheService.getScriptCache();
+  var chunksStr = cache.get(key + '_chunks');
+  if (chunksStr) {
+    var chunks = parseInt(chunksStr);
+    for (var i = 0; i < chunks; i++) {
+      cache.remove(key + '_' + i);
+    }
+    cache.remove(key + '_chunks');
+  }
+}
+
 function removeAccents(str) {
   if (!str) return '';
   return str.toString().normalize('NFD')
@@ -52,8 +89,17 @@ function doPost(e) {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Từ khóa quá ngắn'})).setMimeType(ContentService.MimeType.JSON);
       }
       
-      var dataSheet = ss.getSheetByName('tuyensinh');
-      var values = dataSheet.getDataRange().getValues();
+      var values;
+      var cachedValues = getCacheLarge('ts_values');
+      if (cachedValues) {
+        values = JSON.parse(cachedValues);
+      } else {
+        var dataSheet = ss.getSheetByName('tuyensinh');
+        values = dataSheet.getDataRange().getValues();
+        try {
+          setCacheLarge('ts_values', JSON.stringify(values));
+        } catch (e) {}
+      }
       var normalizedQuery = removeAccents(query);
       var results = [];
       
@@ -111,8 +157,17 @@ function doPost(e) {
     }
     
     else if (action === 'getAllData') {
-      var dataSheet = ss.getSheetByName('tuyensinh');
-      var values = dataSheet.getDataRange().getValues();
+      var values;
+      var cachedValues = getCacheLarge('ts_values');
+      if (cachedValues) {
+        values = JSON.parse(cachedValues);
+      } else {
+        var dataSheet = ss.getSheetByName('tuyensinh');
+        values = dataSheet.getDataRange().getValues();
+        try {
+          setCacheLarge('ts_values', JSON.stringify(values));
+        } catch (e) {}
+      }
       var studentsData = values.slice(2);
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
@@ -125,12 +180,12 @@ function doPost(e) {
       if (!configSheet) configSheet = ss.insertSheet('CONFIG');
       configSheet.getRange('A1').setValue(data.enableNotification);
       configSheet.getRange('B1').setValue(data.notificationText);
-      return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+      clearCache('ts_values'); return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
     } 
     
     else if (action === 'verifySuper') {
       if (isSuper) {
-        return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+        clearCache('ts_values'); return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
       } else {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Sai mật khẩu cấp cao'})).setMimeType(ContentService.MimeType.JSON);
       }
@@ -156,7 +211,7 @@ function doPost(e) {
         dataSheet.getRange(rowIndex, 11).setValue(data.tiengAnh);
         dataSheet.getRange(rowIndex, 12).setValue(data.chuyenTruong);
         dataSheet.getRange(rowIndex, 13).setValue(data.ghiChu);
-        return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+        clearCache('ts_values'); return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
       } else {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không tìm thấy STT'})).setMimeType(ContentService.MimeType.JSON);
       }
@@ -187,7 +242,7 @@ function doPost(e) {
           var sourceRange = dataSheet.getRange(lastRow, 1, 1, numCols);
           sourceRange.copyTo(newRange, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
         }
-        return ContentService.createTextOutput(JSON.stringify({status: 'success', count: numRows})).setMimeType(ContentService.MimeType.JSON);
+        clearCache('ts_values'); return ContentService.createTextOutput(JSON.stringify({status: 'success', count: numRows})).setMimeType(ContentService.MimeType.JSON);
       } else {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không có dữ liệu mới'})).setMimeType(ContentService.MimeType.JSON);
       }

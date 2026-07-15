@@ -106,7 +106,35 @@ function performSearch() {
         }
     }
 
+    
+    // Nếu là Admin và đã tải xong dữ liệu, tra cứu cực nhanh tại Frontend
+    if (isAdmin && fullAdminData && fullAdminData.length > 0) {
+        const normalizedQuery = removeAccentsLocal(query);
+        const localResults = [];
+        
+        for (let i = 0; i < fullAdminData.length; i++) {
+            const row = fullAdminData[i];
+            const rawSTT = (row[0] || '').toString();
+            const rawID = (row[1] || '').toString();
+            const rawName = (row[3] || '').toString();
+            
+            const cleanRawID = removeAccentsLocal(rawID).replace(/^0+/, '');
+            const cleanQueryID = normalizedQuery.replace(/^0+/, '');
+            const nameMatch = removeAccentsLocal(rawName).includes(normalizedQuery);
+            const idMatch = cleanRawID.includes(cleanQueryID);
+            const sttMatch = rawSTT === query.trim();
+            
+            if (nameMatch || idMatch || sttMatch) {
+                localResults.push(row);
+            }
+        }
+        
+        renderResults(localResults, query);
+        return; // Dừng, không gọi API nữa
+    }
+
     resultsContainer.innerHTML = '<div style="text-align:center; margin-top:20px;"><i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color:var(--primary);"></i><p style="margin-top:10px;">Đang tìm kiếm trên máy chủ...</p></div>';
+
 
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -899,4 +927,13 @@ function doBatchPrint() {
         wrapper.style.display = 'none';
         wrapper.innerHTML = '';
     }, 1000);
+}
+
+
+function removeAccentsLocal(str) {
+    if (!str) return '';
+    return str.toString().normalize('NFD')
+              .replace(/[\u0300-\u036f]/g, '')
+              .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+              .toLowerCase().trim();
 }
