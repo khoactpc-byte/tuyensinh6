@@ -484,10 +484,6 @@ window.updateStudent = function(stt) {
     .then(res => {
         if (res.status === 'success') {
             btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lưu';
-            if (adminRole !== 'super') {
-                adminRole = 'super';
-                adminSessionPassword = passToUse;
-            }
             
             // Cập nhật dữ liệu ngay lập tức vào bộ nhớ tạm (không cần F5)
             const studentIndex = studentsData.findIndex(s => s[0] && s[0].toString() === stt.toString());
@@ -684,7 +680,7 @@ if (fileUploadInput) {
                 fetch(SCRIPT_URL, {
                     method: 'POST',
                     body: JSON.stringify({ 
-                        password: uploadPass,
+                        password: adminSessionPassword,
                         action: 'addStudents',
                         newStudents: newStudents
                     })
