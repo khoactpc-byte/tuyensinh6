@@ -208,10 +208,10 @@ function doPost(e) {
       }
       
       if (rowIndex > -1) {
-        dataSheet.getRange(rowIndex, 10).setValue(data.daNhapHoc);
-        dataSheet.getRange(rowIndex, 11).setValue(data.tiengAnh);
-        dataSheet.getRange(rowIndex, 12).setValue(data.chuyenTruong);
-        dataSheet.getRange(rowIndex, 13).setValue(data.ghiChu);
+        dataSheet.getRange(rowIndex, 50).setValue(data.daNhapHoc);
+        dataSheet.getRange(rowIndex, 51).setValue(data.tiengAnh);
+        dataSheet.getRange(rowIndex, 52).setValue(data.chuyenTruong);
+        dataSheet.getRange(rowIndex, 53).setValue(data.ghiChu);
         clearCache('ts_values'); return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
       } else {
         return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Không tìm thấy STT'})).setMimeType(ContentService.MimeType.JSON);
