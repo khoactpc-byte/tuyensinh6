@@ -165,6 +165,7 @@ function performSearch() {
 
 // Render HTML
 function renderResults(results, query) {
+    studentsData = results;
     resultsContainer.innerHTML = '';
 
     if (results.length === 0) {
