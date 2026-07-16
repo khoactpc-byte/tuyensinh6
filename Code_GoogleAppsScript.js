@@ -195,8 +195,6 @@ function doPost(e) {
     }
     
     else if (action === 'updateStudent') {
-      if (!isSuper) return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Cần mật khẩu cấp cao'})).setMimeType(ContentService.MimeType.JSON);
-      
       var dataSheet = ss.getSheetByName('tuyensinh');
       var stt = data.stt;
       var values = dataSheet.getDataRange().getValues();

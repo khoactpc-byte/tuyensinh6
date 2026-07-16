@@ -457,13 +457,6 @@ window.unlockInfo = function(stt) {
 window.updateStudent = function(stt) {
     if (!SCRIPT_URL) { alert("Thiết lập SCRIPT_URL!"); return; }
     
-    if (adminRole !== 'super') {
-        requireSuperPassword(() => {
-            window.updateStudent(stt);
-        });
-        return;
-    }
-
     let passToUse = adminSessionPassword;
 
     const isEnrolled = document.getElementById(`check_${stt}`).checked;
