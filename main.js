@@ -791,9 +791,9 @@ function doBatchPrint() {
         return;
     }
 
-    const startIdxInput = document.getElementById('batchStartIdx').value;
-    const endIdxInput = document.getElementById('batchEndIdx').value;
-    const printAll = document.getElementById('batchPrintAll').checked;
+    const startIdxInput = document.getElementById('printStart').value;
+    const endIdxInput = document.getElementById('printEnd').value;
+    const printAll = document.querySelector('input[name="printMode"][value="all"]').checked;
 
     let studentsToPrint = [];
 
