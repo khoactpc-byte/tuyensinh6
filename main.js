@@ -896,10 +896,15 @@ function doBatchPrint() {
 
     setTimeout(() => {
         window.print();
+    }, 500);
+
+    const afterPrint = () => {
         document.body.classList.remove('batch-print');
         wrapper.style.display = 'none';
         wrapper.innerHTML = '';
-    }, 1000);
+        window.removeEventListener('afterprint', afterPrint);
+    };
+    window.addEventListener('afterprint', afterPrint);
 }
 
 
