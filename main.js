@@ -638,7 +638,8 @@ if (fileUploadInput) {
             let duplicateCount = 0;
             
             // Extract existing IDs for fast lookup
-            const existingIDs = new Set(studentsData.map(s => {
+            const dataSource = fullAdminData && fullAdminData.length > 0 ? fullAdminData : studentsData;
+            const existingIDs = new Set(dataSource.map(s => {
                 const id = s[1]; // Số định danh cá nhân is at index 1
                 return id ? removeAccents(id.toString()).replace(/^0+/, '') : '';
             }).filter(id => id !== ''));
