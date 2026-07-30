@@ -568,6 +568,63 @@ if (configEnableNotif && configNotifText) {
     });
 }
 
+document.getElementById('checkDuplicateBtn').addEventListener('click', function() {
+    const reportDiv = document.getElementById('duplicateReport');
+    if (!fullAdminData || fullAdminData.length === 0) {
+        reportDiv.style.display = 'block';
+        reportDiv.style.color = '#b91c1c';
+        reportDiv.style.backgroundColor = '#fef2f2';
+        reportDiv.style.borderColor = '#fca5a5';
+        reportDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Chưa tải xong dữ liệu, vui lòng đợi một lát...';
+        return;
+    }
+    
+    const idMap = {};
+    let duplicateCount = 0;
+    
+    for (let i = 0; i < fullAdminData.length; i++) {
+        const row = fullAdminData[i];
+        const stt = row[0];
+        const id = (row[1] || '').toString().trim();
+        const name = row[3] || '';
+        
+        if (!id) continue;
+        
+        if (idMap[id]) {
+            idMap[id].push({stt, name});
+        } else {
+            idMap[id] = [{stt, name}];
+        }
+    }
+    
+    let reportHTML = '<strong><i class="fa-solid fa-circle-exclamation"></i> Phát hiện các Mã Định Danh bị trùng:</strong><ul style="margin-top: 10px; padding-left: 20px;">';
+    
+    for (const [id, students] of Object.entries(idMap)) {
+        if (students.length > 1) {
+            duplicateCount++;
+            reportHTML += `<li style="margin-bottom: 8px;">Mã ĐD <strong>${id}</strong> trùng ở ${students.length} dòng:<ul>`;
+            students.forEach(s => {
+                reportHTML += `<li>STT: ${s.stt} - Tên: ${s.name}</li>`;
+            });
+            reportHTML += `</ul></li>`;
+        }
+    }
+    reportHTML += '</ul>';
+    
+    reportDiv.style.display = 'block';
+    if (duplicateCount > 0) {
+        reportDiv.style.color = '#b91c1c';
+        reportDiv.style.backgroundColor = '#fef2f2';
+        reportDiv.style.borderColor = '#fca5a5';
+        reportDiv.innerHTML = reportHTML;
+    } else {
+        reportDiv.style.color = '#15803d';
+        reportDiv.style.backgroundColor = '#f0fdf4';
+        reportDiv.style.borderColor = '#bbf7d0';
+        reportDiv.innerHTML = '<i class="fa-solid fa-circle-check"></i> Tuyệt vời! Không phát hiện học sinh nào bị trùng Mã Định Danh.';
+    }
+});
+
 window.showStats = function() {
     if (!isAdmin) return;
     if (!fullAdminData) {
