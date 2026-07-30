@@ -248,20 +248,20 @@ function renderResults(results, query) {
                     </div>
                 </div>
                 <div class="card-body">
-                    <div class="detail-item"><i class="fa-regular fa-calendar"></i> <strong>Ngày sinh:</strong> <span>${dob}</span></div>
-                    <div class="detail-item"><i class="fa-solid fa-school"></i> <strong>Trường:</strong> <span>${school}</span></div>
+                    <div class="detail-item"><i class="fa-regular fa-calendar" style="color: #f59e0b;"></i> <strong>Ngày sinh</strong> <span>${dob}</span></div>
+                    <div class="detail-item"><i class="fa-solid fa-school" style="color: #3b82f6;"></i> <strong>Trường</strong> <span>${school}</span></div>
                     
                     <div id="obscured_addr_${stt}">
-                        <div class="detail-item"><i class="fa-solid fa-location-dot"></i> <strong>Địa chỉ:</strong> <span>${displayAddress}</span></div>
-                        <div class="detail-item sub-item"><div></div><i class="fa-solid fa-map"></i> <strong>Khu phố:</strong> <span>${displayKhuPho}</span></div>
-                        <div class="detail-item sub-item"><div></div><i class="fa-solid fa-map-location-dot"></i> <strong>Phường/Xã:</strong> <span>${displayPhuongXa}</span></div>
+                        <div class="detail-item"><i class="fa-solid fa-location-dot" style="color: #ef4444;"></i> <strong>Địa chỉ</strong> <span>${displayAddress}</span></div>
+                        <div class="detail-item sub-item"><div></div><i class="fa-solid fa-map" style="color: #10b981;"></i> <strong>Khu phố</strong> <span>${displayKhuPho}</span></div>
+                        <div class="detail-item sub-item"><div></div><i class="fa-solid fa-map-location-dot" style="color: #8b5cf6;"></i> <strong>Phường/Xã</strong> <span>${displayPhuongXa}</span></div>
                         ${needsUnlock ? `<button onclick="unlockInfo('${stt}')" style="margin-top: 10px; padding: 6px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem; font-weight: 500;"><i class="fa-solid fa-unlock"></i> Bấm vào đây để xem đủ thông tin</button>` : ''}
                     </div>
 
                     <div id="revealed_addr_${stt}" style="display: none;">
-                        <div class="detail-item"><i class="fa-solid fa-location-dot"></i> <strong>Địa chỉ:</strong> <span>${soNha ? soNha : 'Không có thông tin'}</span></div>
-                        <div class="detail-item sub-item"><div></div><i class="fa-solid fa-map"></i> <strong>Khu phố:</strong> <span>${khuPho ? khuPho : 'Không có thông tin'}</span></div>
-                        <div class="detail-item sub-item"><div></div><i class="fa-solid fa-map-location-dot"></i> <strong>Phường/Xã:</strong> <span>${phuongXa ? phuongXa : 'Không có thông tin'}</span></div>
+                        <div class="detail-item"><i class="fa-solid fa-location-dot" style="color: #ef4444;"></i> <strong>Địa chỉ</strong> <span>${soNha ? soNha : 'Không có thông tin'}</span></div>
+                        <div class="detail-item sub-item"><div></div><i class="fa-solid fa-map" style="color: #10b981;"></i> <strong>Khu phố</strong> <span>${khuPho ? khuPho : 'Không có thông tin'}</span></div>
+                        <div class="detail-item sub-item"><div></div><i class="fa-solid fa-map-location-dot" style="color: #8b5cf6;"></i> <strong>Phường/Xã</strong> <span>${phuongXa ? phuongXa : 'Không có thông tin'}</span></div>
                     </div>
                 </div>
         `;

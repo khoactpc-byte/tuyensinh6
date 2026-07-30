@@ -781,7 +781,7 @@ body.admin-active .status-message {
 
 .detail-item {
     display: grid;
-    grid-template-columns: 20px 105px 1fr;
+    grid-template-columns: 24px 110px 1fr;
     align-items: start;
     gap: 12px;
     margin-bottom: 16px;
@@ -791,9 +791,23 @@ body.admin-active .status-message {
 .detail-item i {
     margin-top: 4px;
     text-align: center;
+    font-size: 1.15rem;
 }
 .detail-item.sub-item {
-    grid-template-columns: 20px 20px 85px 1fr;
+    grid-template-columns: 28px 24px 70px 1fr;
+}
+.detail-item strong {
+    display: flex;
+    justify-content: space-between;
+    color: #475569;
+}
+.detail-item strong::after {
+    content: ":";
+    font-weight: 700;
+}
+.detail-item span {
+    color: #0f172a;
+    font-weight: 500;
 }
 
 .admin-actions label {
