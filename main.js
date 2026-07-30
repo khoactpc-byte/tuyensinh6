@@ -201,8 +201,13 @@ function renderResults(results, query) {
         const phuongXa = student[15] || '';
         const khuPho = student[16] || '';
         const soNha = student[19] || '';
-        const time = student[48] || 'Không có thông tin';
-
+        let timeLabel = 'Thời gian hẹn:';
+        let timeValue = student[48] || 'Không có thông tin'; // Cột AW mặc định
+        
+        if (globalConfig.showExpectedClass) {
+            timeLabel = 'Lớp dự kiến:';
+            timeValue = student[53] || 'Chưa xếp lớp'; // Cột BB
+        }
         // Combine address
         const addressParts = [soNha, khuPho, phuongXa].filter(part => part && part.trim() !== '');
         const address = addressParts.length > 0 ? addressParts.join(', ') : 'Không có thông tin';
@@ -234,7 +239,7 @@ function renderResults(results, query) {
                         <h2>${name.toUpperCase()}</h2>
                         <div class="student-id"><i class="fa-regular fa-id-card"></i> Số định danh: <span id="id_text_${stt}">${displayId}</span></div>
                         <div class="student-time" style="color: #ef4444; font-weight: bold; font-size: 0.95rem;">
-                            <i class="fa-regular fa-clock"></i> Thời gian hẹn: ${time}
+                            <i class="fa-regular fa-clock"></i> ${timeLabel} ${timeValue}
                         </div>
                     </div>
                     <div class="stt-badge">
