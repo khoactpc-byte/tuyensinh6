@@ -37,10 +37,15 @@ function clearCache(key) {
 
 function removeAccents(str) {
   if (!str) return '';
-  return str.toString().normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/đ/g, 'd').replace(/Đ/g, 'D')
-            .toLowerCase().trim();
+  str = str.toString().toLowerCase().trim().replace(/\s+/g, ' ');
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+  str = str.replace(/đ/g, "d");
+  return str;
 }
 
 function doPost(e) {
@@ -106,11 +111,13 @@ function doPost(e) {
       var normalizedQuery = removeAccents(query);
       var results = [];
       
-      for (var i = 2; i < values.length; i++) {
+      for (var i = 1; i < values.length; i++) {
         var row = values[i];
+        var rawSTT = row[0] ? row[0].toString() : '';
+        if (!rawSTT || isNaN(parseInt(rawSTT))) continue;
+        
         var rawID = row[1] ? row[1].toString() : '';
         var rawName = row[3] ? row[3].toString() : '';
-        var rawSTT = row[0] ? row[0].toString() : '';
         
         var cleanRawID = removeAccents(rawID).replace(/^0+/, '');
         var cleanQueryID = normalizedQuery.replace(/^0+/, '');
@@ -174,7 +181,9 @@ function doPost(e) {
           setCacheLarge('ts_values', JSON.stringify(values));
         } catch (e) {}
       }
-      var studentsData = values.slice(2);
+      var studentsData = values.filter(function(row) {
+        return row[0] && !isNaN(parseInt(row[0]));
+      });
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
         results: studentsData
