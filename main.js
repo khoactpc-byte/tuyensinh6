@@ -744,6 +744,7 @@ if (fileUploadInput) {
                 if (existingIDs.has(cleanID)) {
                     duplicateCount++;
                 } else {
+                    existingIDs.add(cleanID);
                     // Độn thêm cột cho đủ 53 cột
                     while (row.length < 53) {
                         row.push('');
