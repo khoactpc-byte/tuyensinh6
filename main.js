@@ -585,15 +585,16 @@ document.getElementById('checkDuplicateBtn').addEventListener('click', function(
     for (let i = 0; i < fullAdminData.length; i++) {
         const row = fullAdminData[i];
         const stt = row[0];
-        const id = (row[1] || '').toString().trim();
+        const rawId = (row[1] || '').toString().trim();
         const name = row[3] || '';
         
-        if (!id) continue;
+        const cleanId = rawId.replace(/^0+/, '');
+        if (!cleanId) continue;
         
-        if (idMap[id]) {
-            idMap[id].push({stt, name});
+        if (idMap[cleanId]) {
+            idMap[cleanId].push({stt, name, originalId: rawId});
         } else {
-            idMap[id] = [{stt, name}];
+            idMap[cleanId] = [{stt, name, originalId: rawId}];
         }
     }
     
@@ -602,7 +603,8 @@ document.getElementById('checkDuplicateBtn').addEventListener('click', function(
     for (const [id, students] of Object.entries(idMap)) {
         if (students.length > 1) {
             duplicateCount++;
-            reportHTML += `<li style="margin-bottom: 8px;">Mã ĐD <strong>${id}</strong> trùng ở ${students.length} dòng:<ul>`;
+            const displayId = students.reduce((max, s) => s.originalId.length > max.length ? s.originalId : max, students[0].originalId);
+            reportHTML += `<li style="margin-bottom: 8px;">Mã ĐD <strong>${displayId}</strong> trùng ở ${students.length} dòng:<ul>`;
             students.forEach(s => {
                 reportHTML += `<li>STT: ${s.stt} - Tên: ${s.name}</li>`;
             });
