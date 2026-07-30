@@ -11,7 +11,7 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css?v=24">
+    <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
     <!-- Announcement Ticker -->
@@ -39,59 +39,30 @@
                 </div>
             </div>
             <div class="header-top-bar">
-                <div class="header-actions-left">
+                                <div class="header-actions-left">
                     <!-- Nút liên kết Google Sheet (Chỉ hiện khi là Admin) -->
                     <a href="https://docs.google.com/spreadsheets/d/1NmIUZM9xSiWx5wk7Sun-nP-L4zSSLAKDXhvQcneueZc/edit" target="_blank" id="openSheetBtn" class="sheet-btn hidden">
                         <i class="fa-solid fa-table-cells"></i> <span class="admin-text">Mở Sheet</span>
                     </a>
-                    <!-- Nút Cập nhật dữ liệu từ file -->
-                    <input type="file" id="fileUploadInput" accept=".xlsx" style="display: none;">
-                    <button id="uploadBtn" class="sheet-btn hidden" style="background: #eab308; border-color: #eab308; color: white;" onclick="requireSuperPassword(() => document.getElementById('fileUploadInput').click())">
-                        <i class="fa-solid fa-cloud-arrow-up"></i> <span class="admin-text">Cập nhật</span>
-                    </button>
                 </div>
                 <div class="header-actions">
                     <!-- Nút Thống Kê (Chỉ hiện khi là Admin) -->
                     <button id="statsBtn" class="sheet-btn hidden" style="background: var(--primary); border-color: var(--primary);" onclick="showStats()">
                         <i class="fa-solid fa-chart-pie"></i> <span class="admin-text">Thống kê</span>
                     </button>
-                    <!-- Nút In Hàng Loạt -->
-                    <button id="batchPrintBtn" class="sheet-btn hidden" style="background: #10b981; border-color: #10b981; color: white;" onclick="showBatchPrintModal()">
-                        <i class="fa-solid fa-print"></i> <span class="admin-text">In hàng loạt</span>
+                                        <!-- Nút Cài đặt (Mới) -->
+                    <button id="settingsBtn" class="sheet-btn hidden" style="background: #3b82f6; border-color: #3b82f6; color: white;" onclick="requireSuperPassword(() => { document.getElementById('settingsModal').style.display='flex'; })">
+                        <i class="fa-solid fa-gear"></i> <span class="admin-text">Cài đặt</span>
                     </button>
                     <button id="adminLoginBtn" class="admin-btn" title="Đăng nhập dành cho nhà trường"><i class="fa-solid fa-lock"></i> <span class="admin-text">Admin</span></button>
                 </div>
             </div>
         </header>
 
-        <!-- Admin Config Section -->
-        <section id="adminConfigSection" class="admin-config-section hidden">
-            <h3 id="toggleConfigBtn" onclick="toggleConfigPanel()" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;">
-                <span><i class="fa-solid fa-bullhorn"></i> Cài đặt Thông báo chạy ngang</span>
-                <i id="accordionIcon" class="fa-solid fa-chevron-down"></i>
-            </h3>
-            <div id="configPanel" class="config-form" style="display: none;">
-                <div class="toggle-group">
-                    <label class="switch">
-                        <input type="checkbox" id="configEnableNotif">
-                        <span class="slider round"></span>
-                    </label>
-                    <span class="toggle-label">Bật thông báo</span>
-                </div>
-                <textarea id="configNotifText" placeholder="Nhập nội dung thông báo..."></textarea>
-                <button id="saveConfigBtn" class="btn-primary" style="padding: 10px 20px; font-size: 1rem;"><i class="fa-solid fa-floppy-disk"></i> Lưu cài đặt</button>
-            </div>
-        </section>
+        
 
         <script>
-            function toggleConfigPanel() {
-                var panel = document.getElementById('configPanel');
-                var icon = document.getElementById('accordionIcon');
-                if (panel.style.display === 'none') {
-                    panel.style.display = 'flex'; // Form sử dụng display flex từ class .config-form
-                    icon.classList.remove('fa-chevron-down');
-                    icon.classList.add('fa-chevron-up');
-                } else {
+             else {
                     panel.style.display = 'none';
                     icon.classList.remove('fa-chevron-up');
                     icon.classList.add('fa-chevron-down');
@@ -152,6 +123,65 @@
             <div style="display:flex; gap:10px;">
                 <button onclick="document.getElementById('superPassModal').style.display='none'" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px; background:#f5f5f5; cursor:pointer; font-size:0.95rem; color:#333;">Hủy</button>
                 <button id="superPassConfirm" style="flex:1; padding:10px; border:none; border-radius:8px; background:#ef4444; color:white; cursor:pointer; font-weight:600; font-size:0.95rem;">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Settings Modal -->
+    <div id="settingsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9998; justify-content:center; align-items:center;">
+        <div style="background:white; border-radius:12px; padding:24px; width:400px; text-align:left; box-shadow:0 10px 40px rgba(0,0,0,0.3); max-height: 90vh; overflow-y: auto;">
+            <h3 style="margin:0 0 16px; color:#333; text-align:center;"><i class="fa-solid fa-gear"></i> Cài đặt Quản trị</h3>
+            
+            <!-- Cập nhật dữ liệu -->
+            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #333;"><i class="fa-solid fa-cloud-arrow-up"></i> Cập nhật dữ liệu</h4>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">Tải lên file Excel để cập nhật thông tin học sinh.</p>
+                <input type="file" id="fileUploadInput" accept=".xlsx" style="display: none;">
+                <button id="uploadBtn" style="width: 100%; padding: 10px; border: none; border-radius: 6px; background: #eab308; color: white; cursor: pointer; font-weight: 600;" onclick="document.getElementById('fileUploadInput').click()">
+                    <i class="fa-solid fa-upload"></i> Chọn file Excel
+                </button>
+            </div>
+
+            <!-- In hàng loạt -->
+            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #333;"><i class="fa-solid fa-print"></i> In hàng loạt</h4>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">In phiếu cho các học sinh chưa đăng ký.</p>
+                <button style="width: 100%; padding: 10px; border: none; border-radius: 6px; background: #10b981; color: white; cursor: pointer; font-weight: 600;" onclick="document.getElementById('batchPrintModal').style.display='flex'">
+                    <i class="fa-solid fa-print"></i> Mở bảng in
+                </button>
+            </div>
+
+            <!-- Hiển thị Tra cứu -->
+            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #333;"><i class="fa-solid fa-eye"></i> Hiển thị Tra cứu</h4>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">Chọn thông tin hiển thị màu đỏ ở kết quả tra cứu.</p>
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+                    <input type="radio" name="displayMode" value="appointment" id="modeAppointment" checked> 
+                    Hẹn phụ huynh (Cột AW)
+                </label>
+                <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+                    <input type="radio" name="displayMode" value="class" id="modeClass"> 
+                    Hiện lớp dự kiến (Cột BB)
+                </label>
+            </div>
+
+            <!-- Cài đặt thông báo -->
+            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #333;"><i class="fa-solid fa-bullhorn"></i> Thông báo chạy ngang</h4>
+                <div class="toggle-group" style="margin-bottom: 10px;">
+                    <label class="switch">
+                        <input type="checkbox" id="configEnableNotif">
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="toggle-label" style="font-size: 0.9rem; margin-left: 10px;">Bật thông báo</span>
+                </div>
+                <textarea id="configNotifText" placeholder="Nhập nội dung thông báo..." style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; min-height: 60px; box-sizing: border-box;"></textarea>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button onclick="document.getElementById('settingsModal').style.display='none'" style="flex:1; padding:10px; border:1px solid #ddd; border-radius:8px; background:#f5f5f5; cursor:pointer; font-size:0.95rem;">Đóng</button>
+                <button id="saveConfigBtn" style="flex:1; padding:10px; border:none; border-radius:8px; background:#3b82f6; color:white; cursor:pointer; font-weight:600; font-size:0.95rem;"><i class="fa-solid fa-floppy-disk"></i> Lưu cài đặt</button>
             </div>
         </div>
     </div>
@@ -347,6 +377,6 @@
     </div>
 
     
-    <script src="main.js?v=32"></script>
+    <script src="main.js?v=33"></script>
 </body>
 </html>

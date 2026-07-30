@@ -6,6 +6,7 @@ let adminSessionPassword = '';
 let adminRole = '';
 let adminSheetUrl = '';
 let fullAdminData = null;
+let globalConfig = { showExpectedClass: false };
 
 // Elements
 const searchInput = document.getElementById('searchInput');
@@ -59,9 +60,20 @@ function loadConfig() {
         if (res.status === 'success') {
             let isEnabled = res.enableNotification === true || res.enableNotification === 'TRUE' || res.enableNotification === 'true';
             let text = res.notificationText || '';
+            globalConfig.showExpectedClass = res.showExpectedClass === true || res.showExpectedClass === 'TRUE' || res.showExpectedClass === 'true';
             
             if (configEnableNotif) configEnableNotif.checked = isEnabled;
             if (configNotifText) configNotifText.value = text;
+
+            const modeClass = document.getElementById('modeClass');
+            const modeAppointment = document.getElementById('modeAppointment');
+            if (modeClass && modeAppointment) {
+                if (globalConfig.showExpectedClass) {
+                    modeClass.checked = true;
+                } else {
+                    modeAppointment.checked = true;
+                }
+            }
 
             if (isEnabled && text.trim() !== '') {
                 tickerText.innerHTML = `<i class="fa-solid fa-bullhorn" style="color: #ffe600; margin-right: 10px; font-size: 1.2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i> ${text}`;
@@ -325,12 +337,12 @@ adminLoginBtn.addEventListener('click', () => {
         adminLoginBtn.style.background = '';
         adminLoginBtn.style.color = '';
         openSheetBtn.classList.add('hidden');
-        if (uploadBtn) uploadBtn.classList.add('hidden');
+        
         const statsBtn = document.getElementById('statsBtn');
         if (statsBtn) statsBtn.classList.add('hidden');
-        const batchPrintBtn = document.getElementById('batchPrintBtn');
-        if (batchPrintBtn) batchPrintBtn.classList.add('hidden');
-        adminConfigSection.classList.add('hidden');
+        
+        const settingsBtn = document.getElementById('settingsBtn');
+        if (settingsBtn) settingsBtn.classList.add('hidden');
         performSearch();
     } else {
         adminModal.classList.remove('hidden');
@@ -362,12 +374,12 @@ function handleLogin() {
             adminLoginBtn.style.background = '#10b981';
             adminLoginBtn.style.color = 'white';
             openSheetBtn.classList.remove('hidden');
-            if (uploadBtn) uploadBtn.classList.remove('hidden');
+            
             const statsBtn = document.getElementById('statsBtn');
             if (statsBtn) statsBtn.classList.remove('hidden');
-            const batchPrintBtn = document.getElementById('batchPrintBtn');
-            if (batchPrintBtn) batchPrintBtn.classList.remove('hidden');
-            adminConfigSection.classList.remove('hidden');
+            
+            const settingsBtn = document.getElementById('settingsBtn');
+            if (settingsBtn) settingsBtn.classList.remove('hidden');
             if (searchInput.value.trim() !== '') performSearch();
             
             // Tải dữ liệu ngầm cho chức năng in/thống kê
@@ -396,6 +408,9 @@ if (saveConfigBtn) {
     saveConfigBtn.addEventListener('click', () => {
         const isEnabled = configEnableNotif.checked;
         const text = configNotifText.value;
+        const modeClass = document.getElementById('modeClass');
+        const showExpectedClass = modeClass ? modeClass.checked : false;
+
         const originalText = saveConfigBtn.innerHTML;
         saveConfigBtn.innerHTML = 'Đang lưu...';
         saveConfigBtn.disabled = true;
@@ -406,7 +421,8 @@ if (saveConfigBtn) {
                 password: adminSessionPassword,
                 action: 'updateConfig',
                 enableNotification: isEnabled,
-                notificationText: text
+                notificationText: text,
+                showExpectedClass: showExpectedClass
             })
         })
         .then(r => r.json())
@@ -416,6 +432,7 @@ if (saveConfigBtn) {
                 localStorage.setItem('admin_config_enable', isEnabled);
                 localStorage.setItem('admin_config_text', text);
                 localStorage.setItem('admin_config_time', Date.now());
+                globalConfig.showExpectedClass = showExpectedClass;
 
                 saveConfigBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lưu';
                 if (isEnabled && text.trim() !== '') {

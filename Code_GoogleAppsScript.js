@@ -64,10 +64,12 @@ function doPost(e) {
       var text = '';
       var month = '.......';
       var year = '2026';
+      var showExpectedClass = false;
       
       if (configSheet) {
         isEnabled = configSheet.getRange('A1').getValue();
         text = configSheet.getRange('B1').getValue();
+        showExpectedClass = configSheet.getRange('C1').getValue();
         month = configSheet.getRange('M2').getValue() || '.......';
         year = configSheet.getRange('N2').getValue() || '2026';
       }
@@ -75,6 +77,7 @@ function doPost(e) {
         status: 'success',
         enableNotification: isEnabled,
         notificationText: text,
+        showExpectedClass: showExpectedClass,
         month: month,
         year: year
       })).setMimeType(ContentService.MimeType.JSON);
@@ -142,7 +145,7 @@ function doPost(e) {
     
     var providedPass = data.password;
     var isAdmin = (providedPass === adminPassword);
-    var isSuper = (providedPass === superPassword);
+    var isSuper = (providedPass && providedPass.toLowerCase() === superPassword.toLowerCase());
     
     if (!isAdmin && !isSuper) {
       return ContentService.createTextOutput(JSON.stringify({status: 'error', message: 'Sai mật khẩu'})).setMimeType(ContentService.MimeType.JSON);
@@ -183,6 +186,7 @@ function doPost(e) {
       if (!configSheet) configSheet = ss.insertSheet('CONFIG');
       configSheet.getRange('A1').setValue(data.enableNotification);
       configSheet.getRange('B1').setValue(data.notificationText);
+      configSheet.getRange('C1').setValue(data.showExpectedClass);
       clearCache('ts_values'); return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
     } 
     
