@@ -780,11 +780,20 @@ body.admin-active .status-message {
 }
 
 .detail-item {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 20px 105px 1fr;
+    align-items: start;
     gap: 12px;
-    margin-bottom: 18px;
+    margin-bottom: 16px;
     font-size: 1.05rem;
+    line-height: 1.5;
+}
+.detail-item i {
+    margin-top: 4px;
+    text-align: center;
+}
+.detail-item.sub-item {
+    grid-template-columns: 20px 20px 85px 1fr;
 }
 
 .admin-actions label {
